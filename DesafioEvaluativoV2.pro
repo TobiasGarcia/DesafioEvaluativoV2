@@ -4,4 +4,12 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-        main.cpp
+        code_decode.cpp \
+        dialog.cpp \
+        main.cpp \
+        userLogin.cpp
+
+HEADERS += \
+    code_decode.h \
+    dialog.h \
+    userLogin.h
