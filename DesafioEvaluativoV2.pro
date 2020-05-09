@@ -6,10 +6,10 @@ CONFIG -= qt
 SOURCES += \
         code_decode.cpp \
         dialog.cpp \
-        main.cpp \
-        userLogin.cpp
+        login.cpp \
+        main.cpp
 
 HEADERS += \
     code_decode.h \
     dialog.h \
-    userLogin.h
+    login.h
