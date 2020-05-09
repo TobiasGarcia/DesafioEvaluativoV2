@@ -1,10 +1,10 @@
 #include <iostream>
-#include <fstream>
 
 using namespace std;
 
-int main()
-{
-    cout << "Let's develop a cinema management system!" << endl;
+int main() {
+
+    cout << "Developing!";
+
     return 0;
 }

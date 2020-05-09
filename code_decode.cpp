@@ -1,6 +1,6 @@
 #include "code_decode.h"
 
-//Estas son todas las implementaciones de las funciones para codificar y decodificar, texto y archivos.
+//Estas son todas las implementaciones de las funciones para codificar y decodificar texto.
 
 //El método de códificación utilizado es el método 1 expuesto en la práctica 3 del laboratorio;
 //como sabemos en este tipo de codificación hay que pasar el texto a binario, éste binario
@@ -28,9 +28,10 @@ void not_bin(bool bin[], unsigned long long int pos, unsigned int pass, unsigned
 
 void count_bin(bool bin[], unsigned long long int pos, unsigned int n, unsigned int &zeros, unsigned int &ones) {
 
-    //Contamos los ceros y unos del binario de n bits que se almacena en
+    //Cuenta los ceros y unos del binario de n bits que se almacena en
     //las n posiciones contiguas de bin[] comenzando en el indice pos.
-    //Los ceros y unos contados se modifican por referencia.
+    //Los ceros y unos contados son almacenados en las variables zeros
+    //y ones, que son recibidas por referencia.
 
     for (unsigned int i = 0; i < n; i++) {
         if (bin[i + pos]) ones++;
@@ -38,55 +39,83 @@ void count_bin(bool bin[], unsigned long long int pos, unsigned int n, unsigned 
     }
 }
 
-void code_method1(bool bin[], unsigned long long int len, unsigned int n) {
+void code_method(bool bin[], unsigned long long int len, unsigned int n) {
 
     //Ejecuta el método de codificación 1 sobre el arreglo de bools bin[].
-    //La varibale len es la longitud de bin[] y n.
+    //La varibale len es la longitud de bin[] y n es la cantidad bits
+    //que tendrá cada bloque de bits según el método de codificación 1.
 
     unsigned long long int pos = n;
     unsigned int zeros = 0, ones = 0, pass;
-    //Si no se puede particionar el arreglo en grupos de n, n es mayor o igual a len
-    if (n >= len) not_bin(bin, 0, 1, unsigned(len));
+
+    //En el caso en que n sea mayor o igual a len, simplemente negamos los bits.
+
+    if (n >= len) not_bin(bin, 0, 1, len);
     else {
-        //Contamos los ceros y unos del grupo de n bits de la posición actual
+
+        //En caso contrario procedemos a recorrer los grupos de n bits,
+        //pero primero tenemos que negar los primeros n bits según dicta el método 1,
+        //aunque antes de hacerlo, contamos la cantidad de ceros y unos presentes
+        //para saber cada cuanto negar los bits del grupo de n bits posterior.
+
+        //Contamos los ceros y unos.
         count_bin(bin, 0, n, zeros, ones);
-        //Los negamos todos
+
+        //Negamos los bits.
         not_bin(bin, 0, 1, n);
+
         while(pos <= (len - n)) {
 
-            //Decidimos primero que hacer con el grupo de n bits de la posición actual
+            //Decidimos cada cuanto debemos negar los bits del grupo de n bits actual
+            //segun la cantidad de ceros y unos del grupo de n bits previo.
             if (zeros > ones) pass = 2;
             else if (zeros < ones) pass = 3;
             else pass = 1;
 
+            //Reiniciamos las variables ya que son utilizadas por referencia.
             zeros = 0;
             ones = 0;
 
-            //Contamos los ceros y unos del grupo de n bits de la posición actual
+            //Contamos los ceros y unos del grupo de n bits de la posición actual.
             count_bin(bin, pos, n, zeros, ones);
-            //Modificamos el grupo de n bits según el valor de pass
+
+            //Modificamos el grupo de n bits según el valor de pass.
             not_bin(bin, pos, pass, n);
             pos += n;
         }
-        //Si la cantidad de bits no es multiplo de n, cuando no queden más grupos
-        //de n bits, pos no será igual a len, por lo cual procesamos el último
-        //grupo de bits de longitud menor a n
+
+        //Al termianr el ciclo anterior, si la cantidad de bits no es multiplo de n,
+        //pos será diferente de len, por lo cual procesamos el último grupo de bits
+        //de longitud menor a len - pos.
+
         if (pos != len) {
             if (zeros > ones) pass = 2;
             else if (zeros < ones) pass = 3;
             else pass = 1;
-            not_bin(bin, pos, pass, unsigned(len - pos));
+            not_bin(bin, pos, pass, len - pos);
         }
     }
 }
 
 bool get_text(string file_name, string &text, unsigned long long int &len) {
 
+    //Lee el archivo .txt de nombre file_name y almacena por referencia
+    //el texto contenido en él en el string text, además almacena su
+    //longitud en la variable len recibida por referencia.
+    //Retorna true si el archivo pudo ser abirto, o false en caso contrario
+    //y no modifica ni text ni len.
+
+    //El archivo file_name es abirto con ios::binary para leer los binarios
+    //almacenados sin que sean interpretados por el método get().
+
     fstream file(file_name, ios::in | ios::ate | ios::binary);
+
     if (file.is_open()) {
         char chr;
         text = "";
-        len = unsigned(file.tellg());
+
+        //Recuperamos la longitud del texto.
+        len = file.tellg();
 
         file.seekg(0);
         while (file.get(chr)) text.push_back(chr);
@@ -99,8 +128,15 @@ bool get_text(string file_name, string &text, unsigned long long int &len) {
 
 void text2bin(string text, unsigned long long int len, bool *&bin) {
 
+    //Convierte el texto del string text en binario, reserva mediante
+    //memoria dinámica 8 veces la longitud del texto para almacenar
+    //el binario. Almacena la dirección de éste arreglo de bools
+    //en el puntero bin ingresado por referencia. La variable len
+    //es la longitud del string text.
+
     bin = new bool[8*len];
     unsigned long long int pos = 0;
+
     for (unsigned long long int i = 0; i < len; i++) {
         char2bin(text[i], bin, pos);
         pos += 8;
@@ -108,8 +144,9 @@ void text2bin(string text, unsigned long long int len, bool *&bin) {
 }
 
 short int bin2dec(bool bin[], unsigned long long pos) {
+
     //Retorna el entero correspondiente al binario almacenado en
-    //la posición pos del arreglo bin
+    //las 8 posiciones contiguas de bin[] comenzando en el indice pos.
 
     short int num = 0, two_pow = 1;
     for (unsigned int i = 0; i < 8; i++) {
@@ -121,6 +158,10 @@ short int bin2dec(bool bin[], unsigned long long pos) {
 
 void bin2text(bool bin[], unsigned long long len, string &text) {
 
+    //Convierte los binarios de 8 bits almacenados en bin[] en carácteres
+    //y los concatena dentro del string text ingresado por referencia.
+    //La variable len es la londitud de text.
+
     unsigned long long pos = 0;
     for (unsigned long long i = 0; i < len; i += 8) {
         text[pos] = char(bin2dec(bin, i));
@@ -128,104 +169,97 @@ void bin2text(bool bin[], unsigned long long len, string &text) {
     }
 }
 
-bool save_text(string file_name, string text, unsigned long long int len) {
+void save_text(string file_name, string text, unsigned long long int len) {
+
+    //Guarda el texto del string text en el archivo de nombre file_name.
+    //La varibale len es la longitud de text.
+
+    //El archivo file_name es abirto con ios::binary para guardar los carácteres
+    //de text sin que sean interpretados.
 
     fstream file(file_name, ios::out | ios::binary);
-    if (file.is_open()) {
-        for (unsigned long long int i = 0; i < len; i++) file << text[i];
-        file.close();
-        return true;
-    }
-    else return false;
+    for (unsigned long long int i = 0; i < len; i++) file << text[i];
+    file.close();
 }
 
-void decode_method1(bool bin[], unsigned long long len, unsigned int n) {
-    //Ejecuta el método de decodificación 1 sobre el arreglo de bools bin.
+void decode_method(bool bin[], unsigned long long len, unsigned int n) {
+
+    //Ejecuta el método de decodificación 1 sobre el arreglo de bools bin[].
+    //La varibale len es la longitud de bin[] y n es la cantidad bits
+    //que tendrá cada bloque de bits según el método de decodificación 1.
 
     unsigned long long int pos = n;
     unsigned int zeros = 0, ones = 0, pass;
-    if (n >= len) not_bin(bin, 0, 1, unsigned(len));
+
+    //En el caso en que n sea mayor o igual a len, simplemente negamos los bits.
+
+    if (n >= len) not_bin(bin, 0, 1, len);
     else {
+
+        //El proceso es similar a la codificación, sólo que ahora se cuentan
+        //los ceros y unos del grupo de n bits actual LUEGO de decodificarlos.
+
         not_bin(bin, 0, 1, n);
         count_bin(bin, 0, n, zeros, ones);
+
         while(pos <= (len - n)) {
 
-            //El proceso es similar, solo que ahora se cuentan los ceros y unos del
-            //grupo de n bits actual LUEGO de decodificar
+            //Decidimos cada cuanto debemos negar los bits del grupo de n bits actual
+            //segun la cantidad de ceros y unos del grupo de n bits previo después de
+            //haber sido descodificado.
             if (zeros > ones) pass = 2;
             else if (zeros < ones) pass = 3;
             else pass = 1;
 
+            //Reiniciamos las variables ya que son utilizadas por referencia.
             zeros = 0;
             ones = 0;
 
+            //Modificamos el grupo de n bits según el valor de pass.
             not_bin(bin, pos, pass, n);
+
+            //Contamos los ceros y unos del grupo de n bits de la posición actual
+            //luego de ser decodificado.
             count_bin(bin, pos, n, zeros, ones);
             pos += n;
         }
+
+        //De nuevo, si len no era multiplo de n, pos será diferente de len,
+        //por lo cual procesamos el último bloque de len - pos bits.
+
         if (pos != len) {
             if (zeros > ones) pass = 2;
             else if (zeros < ones) pass = 3;
             else pass = 1;
-            not_bin(bin, pos, pass, unsigned(len - pos));
+            not_bin(bin, pos, pass, len - pos);
         }
     }
 }
 
 void code(string &text, unsigned long long int len, unsigned seed) {
 
+    //Codifica el texto del string text recibido por referencia.
+    //La variable seed corresponde a la semilla de condificación,
+    //es decir, a el valor de n en el métodod 1. La variable len
+    //es la longitud de text.
+
     bool *bin = nullptr;
     text2bin(text, len, bin);
-    code_method1(bin, 8*len, seed);
+    code_method(bin, 8*len, seed);
     bin2text(bin, 8*len, text);
     delete[] bin;
 }
 
 void decode(string &text, unsigned long long int len, unsigned seed) {
 
+    //Decodifica el texto del string text recibido por referencia.
+    //La variable seed corresponde a la semilla de decondificación,
+    //es decir, a el valor de n en el métodod 1. La variable len
+    //es la longitud de text.
+
     bool *bin = nullptr;
     text2bin(text, len, bin);
-    decode_method1(bin, 8*len, seed);
+    decode_method(bin, 8*len, seed);
     bin2text(bin, 8*len, text);
     delete[] bin;
-}
-
-bool code_file(string file_nat, string file_code, unsigned int seed) {
-
-    string text;
-    unsigned long long int len;
-    if (get_text(file_nat, text, len)) {
-
-        code(text, len, seed);
-
-        if (!save_text(file_code, text, len)) {
-            cout << "Sorry, the code file could not be opened" << endl << endl;
-            return false;
-        }
-        return true;
-    }
-    else {
-        cout << "Sorry, the native file could not be opened" << endl << endl;
-        return false;
-    }
-}
-
-bool decode_file(string file_code, string file_nat, unsigned int seed) {
-
-    string text;
-    unsigned long long int len;
-    if (get_text(file_code, text, len)) {
-
-        decode(text, len, seed);
-
-        if (!save_text(file_nat, text, len)) {
-            cout << "Sorry, the native file could not be opened" << endl << endl;
-            return false;
-        }
-        return true;
-    }
-    else {
-        cout << "Sorry, the code file could not be opened" << endl << endl;
-        return false;
-    }
 }
