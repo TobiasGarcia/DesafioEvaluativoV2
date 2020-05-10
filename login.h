@@ -5,18 +5,16 @@
 
 using namespace std;
 
-class User
-{
-private:
-    unsigned long long int id;
-    string password;
+bool login_admin(unsigned int seed);
 
-public:
-    User(unsigned long long int _id, string _password)
-        : id(_id), password(_password) {}
+bool add_user(unsigned long long int id, string password, unsigned seed);
 
-    unsigned long long int get_id() {return id;}
-    string get_password() {return password;}
-};
+bool search_id(string text, unsigned long long int len, unsigned long long int id, unsigned long long int &index, unsigned long long int &end_index);
+
+bool valid_password(string password);
+
+bool register_user(unsigned long long int id, unsigned seed);
+
+bool login(unsigned int seed, bool &is_admin);
 
 #endif // LOGIN_H

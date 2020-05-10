@@ -1,40 +1,48 @@
 #include "login.h"
+#include <iostream>
+#include "dialog.h"
 #include "code_decode.h"
 
 bool login_admin(unsigned int seed) {
 
-    //Administra el inicio de sesión del admin
+    //Solicitamos al usuario la contraseña para iniciar sesión como admin.
+    //La variable seed es la semilla con la que se codificó el archivo
+    //sudo.txt. Retornamos true si el usuario ingresa la contraseña
+    //corracta, o false en caso contrario.
 
     unsigned long long int len;
     string password, real_password;
 
     fflush(stdin);
-    cout << endl << "Enter the admin password: "; getline(cin, password);
+    cout << "  Enter the admin password: "; getline(cin, password);
+
+    //Tomamos el texto de sudo.txt y lo decodificamos.
 
     if (get_text("sudo.txt", real_password, len)) {
-
         decode(real_password, len, seed);
+
+        //Verificamos que la contraseña ingresada la sea correcta.
+
         if (password == real_password) return true;
         else {
-            cout << endl << "Sorry, that password is incorrect" << endl << endl;
-            system("pause");
+            cout << endl << "  Sorry, that password is incorrect" << endl << endl;
+            cout << "  "; system("pause");
             return false;
         }
     }
-    else cout << "Sorry, the sudo.txt file could not be opened" << endl << endl;
-    system("pause");
+    else cout << "  Sorry, the sudo.txt file could not be opened" << endl << endl;
+    cout << "  "; system("pause");
     return false;
 }
 
-bool create_user(User *&user, unsigned seed) {
+bool add_user(unsigned long long int id, string password, unsigned seed) {
 
-    //Almacena los datos del usuario user en el archivo users.txt, el cual está codificado,
-    //en el formato que se especifica a continuación. La variable seed corresponde a la
-    //semilla de codificación. Retorna true si el archivo users.txt puedo ser abierto,
-    //o false en caso contrario. En cualquier caso esta función libera la memoria
-    //dinámica reservada por user.
+    //Almacenamos los datos del usuario (id y password), en el formato que se especificará
+    //a continuación, dentro del archivo users.txt el cual se encuentra codificado
+    //con semilla seed. Retornamos true si el archivo users.txt puedo ser abierto,
+    //o false en caso contrario.
 
-    string text, str_aux;
+    string text;
     unsigned long long int len;
 
     //Recuperamos el texto codificado de users.txt y lo almacenamos en text.
@@ -49,36 +57,30 @@ bool create_user(User *&user, unsigned seed) {
 
         //CEDULA CONTRASEÑA\r\n
 
-        //A continuación contruimos un string con los datos de user en este formato
-        //y lo guardamos en el archivo users.txt para posteriormente codificarlo
-        //de nuevo.
-
         //Nota: El \r es porque cuando se modifican los archivos .txt desde el bloc de notas,
         //cuando se escribe un salto de línea y se guarda el archivo, al ser leído aparece
         //el carácter \r precediendo a todos los \n, por lo cual, para mantener consistencia
         //entre cuando el archivo .txt es modificado por el programa o por el programador
         //desde el bloc de notas, se necesita añadir ese \r extra.
 
-        //Agregamos la cedula de user y un espacio en blanco a text.
+        //A continuación contruimos un string con los datos del usuario en el formato indicado
+        //previamente y lo guardamos en el archivo users.txt, para posteriormente
+        //codificarlo de nuevo.
 
-        str_aux = to_string(user->get_id());
-        text.append(str_aux);
+        //Agregamos la cédula y un espacio en blanco a text.
+
+        text.append(to_string(id));
         text.push_back(' ');
-        len += str_aux.length() + 1;
+        len += to_string(id).length() + 1;
 
-        //Agregamos la contraseña de user y el \r seguido del \n a text.
+        //Agregamos la contraseña y el \r seguido del \n a text.
 
-        str_aux = user->get_password();
-        text.append(str_aux);
+        text.append(password);
         text.push_back('\r');
         text.push_back('\n');
-        len += str_aux.length() + 2;
+        len += password.length() + 2;
 
-        //Liberamos la memoria dinámica reservada por user.
-
-        delete user;
-
-        //Codificamos de nuevo el texto de text y lo guardamos en users.txt.
+        //Codificamos nuevamente el texto de text y lo guardamos en users.txt.
 
         code(text, len, seed);
         save_text("users.txt", text, len);
@@ -86,22 +88,18 @@ bool create_user(User *&user, unsigned seed) {
         return true;
     }
     else {
-        cout << "Sorry, the users.txt file could not be opened" << endl << endl;
-
-        //Liberamos de todas formas la memoria dinámica reservada por user.
-
-        delete user;
+        cout << "  Sorry, the users.txt file could not be opened" << endl << endl;
         return false;
     }
 }
 
 bool search_id(string text, unsigned long long int len, unsigned long long int id, unsigned long long int &index, unsigned long long int &end_index) {
 
-    //Retorna true si la cédula correspondiente a id aparece registrada en text,
-    //en index almacena el índice del primer dígito de la cédula y en end_index
-    //el índice del espacio en blanco inmediatamente posterior al último dígito
-    //de la cédula; o retorna false en caso contrario. La variable len es la
-    //longitud del string text.
+    //Retornamos true si la cédula correspondiente a id aparece registrada en text,
+    //en cuyo caso almacenamos en index el índice del primer dígito de la cédula
+    //y en end_index el índice del espacio en blanco inmediatamente posterior
+    //al último dígito de la cédula; o en caso de no encontrar la id en text,
+    //retornamos false. La variable len es la longitud del string text.
 
     index = 0;
     string str_id = to_string(id);
@@ -119,16 +117,30 @@ bool search_id(string text, unsigned long long int len, unsigned long long int i
 
 bool valid_password(string password) {
 
-    int len = password.length();
+    //Retornamos true si la contraseña almacenada en password cumple con los requerimientos
+    //de estar formada por entre 4 y 16 carácteres conformados únicamente por enteros
+    //desde el 0 hasta el 9, o letras, mayúsculas o minúsculas, pertenecientes
+    //exclusivamente al alfabeto inglés (26 letras).
+
+    unsigned short int len = password.length();
+
+    //Verificamos que password posea entre 4 y 16 carácteres.
+
     if ((len < 4) or (16 < len)) {
-        cout << endl << "Sorry, your password must have between 4 and 16 characters" << endl << endl;
+        cout << endl << "  Sorry, your password must have between 4 and 16 characters" << endl << endl;
         return false;
     }
     else {
-        for (short int i = 0; i < len; i++) {
+
+        //En caso de que sí posea entre 4 y 16 carácteres, recorremos la constraseña
+        //y verificamos que esté conformada únicamente por enteros desde el 0 hasta
+        //el 9, o letras, mayúsculas o minúsculas, pertenecientes exclusivamente al
+        //alfabeto inglés (26 letras).
+
+        for (unsigned short int i = 0; i < len; i++) {
             if (((password[i] < 48) or (57 < password[i])) and ((password[i] < 65) or (90 < password[i])) and ((password[i] < 97) or (122 < password[i]))) {
-                cout << endl << "Sorry, your password must have only numbers or letters" << endl;
-                cout << "different from: " << char(165) << ", " << char(164) << " or letters with accent" << endl << endl;
+                cout << endl << "  Sorry, your password must have only numbers or letters" << endl;
+                cout << "  differents from: " << char(165) << ", " << char(164) << " or letters with accent." << endl << endl;
                 return false;
             }
         }
@@ -138,160 +150,134 @@ bool valid_password(string password) {
 
 bool register_user(unsigned long long int id, unsigned seed) {
 
-    //Solicita al usuario una constraseña de entre 4 y 16 carácteres de números
-    //y letras a excepción de la Ñ, ñ o letras con tilde, con el propósito
-    //de resigtrarlo en el sistema del cine, es decir, en users.txt,
-    //el cual es un archivo que está codificado con la semilla seed.
+    //Solicitamos al usuario una contraseña para poder registrarlo en el sistema,
+    //es decir, en users.txt, el cual es un archivo que está codificado
+    //con la semilla seed. La contraseña debe tener entre 4 y 16
+    //carácteres formados únicamente por enteros desde el 0 hasta
+    //el 9, o letras, mayúsculas o minúsculas, pertenecientes
+    //exclusivamente al alfabeto inglés (26 letras).
     //La variable id almacena la cédula del usuario.
 
     string password;
+    system("cls");
 
     fflush(stdin);
-    cout << "Enter what will be the password for you account, it must have" << endl;
-    cout << "between 4 and 16 characters (only letters and numbers): "; getline(cin, password);
+    cout << endl << "  Enter what will be the password for you account, it must have" << endl;
+    cout << "  between 4 and 16 characters (only letters and numbers): "; getline(cin, password);
+
+    //Continuamos solicitando al usuario una contraseña hasta que cumpla con
+    //los requerimientos mencionados.
 
     while (!valid_password(password)) {
-        system("pause");
+        cout << "  "; system("pause");
         system("cls");
-        cout << "Enter what will be the password for you account, it must have" << endl;
-        cout << "between 4 and 16 characters (only letters and numbers): "; getline(cin, password);
+
+        cout << endl << "  Enter what will be the password for you account, it must have" << endl;
+        cout << "  between 4 and 16 characters (only letters and numbers): "; getline(cin, password);
     }
 
-    User *user = new User(id, password);
-    return create_user(user, seed);
+    //Llamamos a la función create_user() para agregar al usuario
+    //al archivo users.txt.
+
+    return add_user(id, password, seed);
 }
 
-bool login_user(unsigned int seed, User *&us) {
-    //Administra el inicio de sesión de los usuarios
+bool login(unsigned int seed, bool &is_admin) {
 
-    string text, password, real_password;
+    //Solicitamos al usuario una cédula para que pueda iniciar sesión en el sistema.
+    //La variable seed es la semilla con la que se codificaron los archivos
+    //users.txt y sudo.txt. La variable is_admin, recibida por referencia,
+    //terminará siendo true si el usuarios ingresa la palabra clave 'admin'
+    //en lugar de su cédula, o false en caso de que inicie sesión o se
+    //registre en el sistema. Retornamos true en caso de que el usuario
+    //se registre, inicie su sesión, o ingrese como administrador;
+    //y false en caso contrario.
+
     unsigned long long int len;
-    if (get_text("users.dat", text, len)) {
+    string text, password, real_password, ans;
 
-        decode(text, len, seed);
+    //Tomamos el texto de users.txt y en caso de que hayan datos
+    //los decodificamos.
 
+    if (get_text("users.txt", text, len)) {
+
+        if (len != 0) decode(text, len, seed);
         unsigned long long int index = 0, end_index = 0, id;
 
-        cout << endl << "Remember that logging into account to check the balance or withdraw money costs $1000" << endl;
+        //Solicitamos al usuario su contraseña.
 
-        cout << "Enter your ID: ";
-        if (!get_valid_input(id)) {
-            cout << endl << "Sorry, that is not a valid ID" << endl << endl;
-            system("pause");
+        cout << endl << "  Enter your ID for make a reservation: ";
+        if (!get_id_input(id, is_admin)) {
+            cout << endl << "  Sorry, the ID only can have numbers" << endl << endl;
+            cout << "  "; system("pause");
             return false;
         }
 
-        if (!search_id(text, len, id, index, end_index)) {
-            cout << endl << "Sorry, that ID is not registered yet." << endl;
-            cout << "Talk to the admin to be registered." << endl << endl;
-            system("pause");
-            return false;
+        //No está demás recalcar el funcionamiento de get_id_input():
+
+        //Solicitamos al usuario una cédula, las cuales están compuestas
+        //únicamente por enteros desde el 0 hasta el 9. Retornamos true
+        //y almacenamos la cédula ingresada en id en caso de que
+        //efectivamente sólo estuviera compuesta por enteros desde
+        //el 0 hasta el 9, o en el caso de que se haya ingresado
+        //la palabra clave 'admin', retornamos de nuevo true pero
+        //no modificamos la variable id y colocariamos is_admin en
+        //true. Retornamos false si no se presenta alguno de los
+        //dos casos anteriormente mencionados.
+
+        //En caso de que is_admin haya sido colocado en true,
+        //llamamos entonces a la función login_admin().
+
+        else if (is_admin) return login_admin(seed);
+
+        //Si is_admin es false, pero se ingresó una cédula válida, procedemos
+        //a buscar dicha cédula en el string text tomado de users.txt.
+
+        else if (!search_id(text, len, id, index, end_index)) {
+
+            //Si no la encontramos, es porque el usuario no se ha registrado aún,
+            //por lo cual le preguntamos si se quiere registrar.
+
+            cout << endl << "  It looks that you don't have an account yet, do you want to create one?" << endl;
+            cout << "  Enter 'YES' for create an account, or something different not to create it: ";
+            fflush(stdin); getline(cin, ans);
+
+            if (ans == "YES") {
+
+                //En caso afirmativo llamamos a la función register_user().
+
+                register_user(id, seed);
+                cout << endl << "  Your account has been created successfully!" << endl << endl;
+                cout << "  "; system("pause");
+                return true;
+            }
+            else return false;
         }
+        else {
 
-        //Extraemos la contraseña del string text tomado de users.dat
-        index = text.find(':', index);
-        end_index = text.find(';', index);
-        real_password = text.substr((index + 1), (end_index - index - 1));
+            //Si el usuario ingreso una cédula válida, is_admin es false, y la cédula fue
+            //encontrada en el string text, procedemos a extraer de éste último la contraseña
+            //del usuario con ayuda de las variables index y end_index (ver funcionamiento
+            //de search_id()) para compararla con la que ingresará el usuario a continuación.
 
-        fflush(stdin);
-        cout << "Enter your password: "; getline(cin, password);
+            index = text.find(' ', index);
+            end_index = text.find('\r', index);
+            real_password = text.substr((index + 1), (end_index - index - 1));
 
-        if (real_password != password) {
-            cout << endl << "Sorry, that password is incorrect." << endl << endl;
-            system("pause");
-            return false;
+            fflush(stdin);
+            cout << "  Enter your password: "; getline(cin, password);
+
+            if (real_password != password) {
+                cout << endl << "  Sorry, that password is incorrect." << endl << endl;
+                cout << "  "; system("pause");
+                return false;
+            }
+            else return true;
         }
-
-        //Extraemos el saldo del string text tomado de users.dat
-        unsigned long long int balance;
-        index = end_index;
-        end_index = text.find('\r', index);
-        str2int(text.substr((index + 1), (end_index - index - 1)), balance);
-
-        //Verificamos que el usuario pueda pagar la cuota de $ 1000 por entrar a su cuenta
-        if (balance < 1000) {
-            cout << endl << "Sorry, you dont have at least $1000 in your account" << endl << endl;
-            system("pause");
-            return false;
-        }
-
-        us = new user(id, real_password, (balance - 1000));
-        cout << endl << "Login successful. Welcome!" << endl << endl;
-        system("pause");
-        return true;
     }
     else {
-        cout << "Sorry, the users file could not be opened" << endl << endl;
-        system("pause");
+        cout << "  Sorry, the users.txt file could not be opened" << endl << endl;
+        cout << "  "; system("pause");
         return false;
     }
-}
-
-void user_session(user *&us) {
-    //Administra la sesión de usuario
-
-    unsigned int opt = display_user_menu();
-    while (opt != 3) {
-        if (opt == 1) cout << endl << "Your current balance is $" << us->get_balance() << endl << endl;
-        else if (opt == 2) {
-
-            unsigned long long int money;
-            cout << endl << "Enter the amount of money you want to withdraw: ";
-            while (!get_valid_input(money)) {
-                cout << "Sorry, that is not a valid number" << endl << endl;
-                cout << "Enter the amount of money you want to withdraw: ";
-            }
-
-            if (money > us->get_balance()) {
-                cout << endl << "Your current balance is $" << us->get_balance() << "." << endl;
-                cout << "You cant withdraw $" << money << "!" << endl << endl;
-            }
-            else {
-                us->decrease_balance(money);
-                cout << endl << "Transaction completed successfully!" << endl << endl;
-            }
-        }
-        system("pause");
-        system("cls");
-        opt = display_user_menu();
-    }
-}
-
-void ATM_application() {
-    //Administra la aplicación del cajero automático (ATM)
-
-    system("cls");
-    bool method;
-    unsigned seed;
-
-    //Preguntamos cual método y semilla se usara en la codificación
-    //y descoficiación de los archivos sudo.dat y users.dat
-    string *options = new string[2]{"Method 1", "Method 2"};
-    if (ask("\nWhich method do you want to use?", options, 2) == 1) method = 0;
-    else method = 1;
-    seed = get_seed();
-
-    user *us = nullptr;
-    unsigned int opt = display_main_menu();
-    while (opt != 3) {
-        if ((opt == 1) and login_admin(method, seed)) {
-
-            system("cls");
-            cout << endl << "Login as admin successful. Welcome admin!" << endl << endl;
-            cout << "-----------REGISTER A NEW USER-----------" << endl << endl;
-
-            if (register_user(method, seed)) cout << endl << "The user was registered successfully!" << endl << endl;
-            else cout << "The user was NOT registered successfully" << endl << endl;
-
-            system("pause");
-        }
-        else if ((opt == 2) and login_user(method, seed, us)) {
-
-            system("cls");
-            user_session(us);
-            update_user(us, method, seed);
-        }
-        opt = display_main_menu();
-    }
-    system("cls");
 }
