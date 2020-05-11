@@ -1,25 +1,88 @@
 #include "movie_room.h"
+#include <fstream>
 #include <windows.h>
+#include "dialog.h"
 
-Room::Room (int _id) {
+Room::Room (int _id, string path) {
 
     id = _id;
 
-    int type;
-    bool is_vibro;
-    for (short int i = 0; i < 7; i++) {
-        for (short int j = 0; j < 10; j++) {
-            type = 0;
-            is_vibro = false;
+    string line;
+    short int i = 0;
 
-            if (((0 < i) and (i < 4)) and ((1 < j) and (j < 8))) is_vibro = true;
-            else if ((3 < i) and ((j < (i - 3)) or ((12 - i) < j))) type = -1;
-            else if ((4 == i) and ((2 < j) and (j < 7))) is_vibro = true;
+    fstream file(path, ios::in);
 
-            seats[i][j].is_vibro = is_vibro;
-            seats[i][j].type = type;
+    bool bol;
+    short int a;
+
+    while (i < 7) {
+
+        getline(file, line);
+        if (i == 0) {
+            for (short int j = 0; j < 10; j++) {
+                bol = line[3*j] == '1';
+                a = int(line[1 + 3*j]) - 48;
+                seats[i][j].is_empty = bol;
+                seats[i][j].sale_type = a;
+            }
         }
+        else if ((0 < i) and (i < 4)) {
+            for (short int j = 0; j < 10; j++) {
+                bol = line[3*j] == '1';
+                a = int(line[1 + 3*j]) - 48;
+                seats[i][j].is_empty = bol;
+                seats[i][j].sale_type = a;
+                if ((1 < j) and (j < 8)) seats[i][j].is_vibro = true;
+            }
+        }
+        else if (i == 4){
+            for (short int j = 1; j < 9; j++) {
+                bol = line[3*(j - 1)] == '1';
+                a = int(line[1 + 3*(j - 1)]) - 48;
+                seats[i][j].is_empty = bol;
+                seats[i][j].sale_type = a;
+                if ((2 < j) and (j < 7)) seats[i][j].is_vibro = true;
+            }
+        }
+        else {
+            for (short int j = (i - 3); j < (13 - i); j++) {
+                bol = (line[3*(j + 3 - i)] == '1');
+                a = int(line[1 + 3*(j + 3 - i)]) - 48;
+                seats[i][j].is_empty = bol;
+                seats[i][j].sale_type = a;
+            }
+        }
+        i++;
     }
+    getline(file, line);
+    str2int(line, empty_places);
+    file.close();
+}
+
+void Room::save_room(string path) {
+
+    string seat;
+    short int j_min = 0, j_max = 10;
+
+    fstream file(path, ios::out);
+    for (short int i = 0; i < 7; i++) {
+
+        if (3 < i) {
+            j_min = i - 3;
+            j_max = 13 - i;
+        }
+
+        for (short int j = j_min; j < j_max; j++) {
+            seat = "";
+            seat.push_back(seats[i][j].is_empty?'1':'0');
+            seat.push_back(char(seats[i][j].sale_type + 48));
+            seat.push_back(' ');
+            file << seat;
+        }
+        file << '\n';
+    }
+    file << empty_places;
+    file.close();
 }
 
 void colored_display(const Seat &seat, const bool &is_admin) {
@@ -29,11 +92,11 @@ void colored_display(const Seat &seat, const bool &is_admin) {
     else if (is_admin and seat.is_vibro) chr = char(254);
     else chr = 'O';
 
-    if (seat.type) { //Los enteros diferentes de 0 son bool true
+    if (seat.sale_type) { //Los enteros diferentes de 0 son bool true
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-        SetConsoleTextAttribute(hConsole, (seat.type == 2)? 12: 2);
-        cout << chr << endl;
+        SetConsoleTextAttribute(hConsole, (seat.sale_type == 2)?6:12);
+        cout << chr;
         SetConsoleTextAttribute(hConsole, 7);
     }
     else cout << chr;

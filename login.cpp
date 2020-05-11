@@ -18,7 +18,7 @@ bool login_admin(unsigned int seed) {
 
     //Tomamos el texto de sudo.txt y lo decodificamos.
 
-    if (get_text("sudo.txt", real_password, len)) {
+    if (get_text("../DesafioEvaluativoV2/data/sudo.txt", real_password, len)) {
         decode(real_password, len, seed);
 
         //Verificamos que la contraseña ingresada la sea correcta.
@@ -47,7 +47,7 @@ bool add_user(unsigned long long int id, string password, unsigned seed) {
 
     //Recuperamos el texto codificado de users.txt y lo almacenamos en text.
 
-    if (get_text("users.txt", text, len)) {
+    if (get_text("../DesafioEvaluativoV2/data/users.txt", text, len)) {
 
         //Si había texto en users.txt, lo decodificamos.
 
@@ -199,7 +199,7 @@ bool login(unsigned int seed, bool &is_admin) {
     //Tomamos el texto de users.txt y en caso de que hayan datos
     //los decodificamos.
 
-    if (get_text("users.txt", text, len)) {
+    if (get_text("../DesafioEvaluativoV2/data/users.txt", text, len)) {
 
         if (len != 0) decode(text, len, seed);
         unsigned long long int index = 0, end_index = 0, id;

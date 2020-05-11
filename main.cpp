@@ -8,12 +8,13 @@ using namespace std;
 
 int main() {
 
-    Room room(0);
+    Room room(0, "../DesafioEvaluativoV2/data/rooms/room1.txt");
 
-    room.display_seats(false);
+    room.display_seats(true);
+    room.save_room("../DesafioEvaluativoV2/data/rooms/room1.txt");
 
 
-    //code_file("nat.txt", "sudo.txt", 12);
+    //code_file("../DesafioEvaluativo/data/nat.txt", "../DesafioEvaluativo/data/sudo.txt", 12);
 
 //    display_welcome();
 

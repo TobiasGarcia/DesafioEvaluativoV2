@@ -106,7 +106,7 @@ void code_method(bool bin[], unsigned long long int len, unsigned int n) {
     }
 }
 
-bool get_text(string file_name, string &text, unsigned long long int &len) {
+bool get_text(string path, string &text, unsigned long long int &len) {
 
     //Leemos el archivo .txt de nombre file_name y almacena por referencia
     //el texto contenido en él en el string text, además almacenamos su
@@ -122,7 +122,7 @@ bool get_text(string file_name, string &text, unsigned long long int &len) {
     //del proyecto que lleva el nombre de 'DesafioEvaluativoV2'. De lo contrario
     //el programa no podrá encontrar esas bases de datos.
 
-    fstream file("../DesafioEvaluativoV2/data/" + file_name, ios::in | ios::ate | ios::binary);
+    fstream file(path, ios::in | ios::ate | ios::binary);
 
     if (file.is_open()) {
         char chr;
@@ -183,7 +183,7 @@ void bin2text(bool bin[], unsigned long long len, string &text) {
     }
 }
 
-void save_text(string file_name, string text, unsigned long long int len) {
+void save_text(string path, string text, unsigned long long int len) {
 
     //Guardamos el texto del string text en el archivo de nombre file_name.
     //La varibale len es la longitud de text.
@@ -196,7 +196,7 @@ void save_text(string file_name, string text, unsigned long long int len) {
     //del proyecto que lleva el nombre de 'DesafioEvaluativoV2'. De lo contrario
     //el programa no podrá encontrar esas bases de datos.
 
-    fstream file("../DesafioEvaluativoV2/data/" + file_name, ios::out | ios::binary);
+    fstream file(path, ios::out | ios::binary);
     for (unsigned long long int i = 0; i < len; i++) file << text[i];
     file.close();
 }
@@ -285,15 +285,15 @@ void decode(string &text, unsigned long long int len, unsigned seed) {
 
 //Estas dos funciones solo son para debug. No estarán en la entrega final.
 
-bool code_file(string file_nat, string file_code, unsigned int seed) {
+bool code_file(string path_nat, string path_code, unsigned int seed) {
 
     string text;
     unsigned long long int len;
-    if (get_text(file_nat, text, len)) {
+    if (get_text(path_nat, text, len)) {
 
         code(text, len, seed);
 
-        save_text(file_code, text, len);
+        save_text(path_code, text, len);
         return true;
     }
     else {
@@ -302,15 +302,15 @@ bool code_file(string file_nat, string file_code, unsigned int seed) {
     }
 }
 
-bool decode_file(string file_code, string file_nat, unsigned int seed) {
+bool decode_file(string path_code, string path_nat, unsigned int seed) {
 
     string text;
     unsigned long long int len;
-    if (get_text(file_code, text, len)) {
+    if (get_text(path_code, text, len)) {
 
         decode(text, len, seed);
 
-        save_text(file_nat, text, len);
+        save_text(path_nat, text, len);
         return true;
     }
     else {

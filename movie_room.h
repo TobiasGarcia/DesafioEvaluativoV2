@@ -7,18 +7,19 @@ using namespace std;
 
 class Seat {
 public:
-    bool is_empty = true;
-    bool is_vibro;
-    int type;
+    bool is_empty = false;
+    bool is_vibro = false;
+    short int sale_type = -1;
 };
 
 class Room {
 private:
     int id;
     Seat seats[7][10];
-    int empty_places = 58;
+    int empty_places;
 public:
-    Room(int _id);
+    Room(int _id, string path);
+    void save_room(string path);
     int get_id() {return id;}
     int get_empty_places() {return empty_places;}
     void display_row(short int row, const short int &aux, const bool &is_admin);
