@@ -39,26 +39,30 @@ void colored_display(const Seat &seat, const bool &is_admin) {
     else cout << chr;
 }
 
+void display_wall(short int left, short int walls, short int right) {
+
+    for (short int j = 0; j < left; j++) cout << ' ';
+    for (short int j = 0; j < walls; j++) cout << char(177);
+    for (short int j = 0; j < right; j++) cout << ' ';
+}
+
 void Room::display_row(short int row, const short int &aux, const bool &is_admin) {
 
-    cout << "    " << char(177) << char(177) << ' ';
-    for (short int j = 0; j < aux; j++) cout << "    ";
     for (short int j = aux; j < (10 - aux); j++) {
         cout << char(179) << ' ';
         colored_display(seats[row][j], is_admin);
         cout << ' ';
     }
     cout << char(179);
-    for (short int j = 0; j < aux; j++) cout << "    ";
 }
 
-void display_separator(unsigned short int size, short int chr1, short int chr2, short int chr3) {
+void display_separator(short int size, short int chr1, short int chr2, short int chr3) {
 
     //Esta función sólo es con el propósito de ahorrar el tener que reescribir el código para imprimir
     //cada separación de las filas de la matriz, debido a que estos códigos son muy similares.
 
     cout << char(chr1);
-    for (unsigned int i = 0; i < (size - 1u); i++) cout << char(196) << char(196) << char(196) << char(chr2);
+    for (int i = 0; i < (size - 1); i++) cout << char(196) << char(196) << char(196) << char(chr2);
     cout << char(196) << char(196) << char(196) << char(chr3);
 }
 
@@ -67,52 +71,31 @@ void Room::display_seats(const bool &is_admin) {
     short int aux = 0;
 
     cout << endl << endl;
-    cout << "    ";
-    for (short int j = 0; j < 47; j++) cout << char(177);
-    cout << endl;
+    display_wall(4, 47, 0); cout << endl;
 
-    cout << "    " << char(177) << char(177) << ' ';
-    display_separator(10, 218, 194, 191);
-    cout << ' ' << char(177) << char(177) << endl;
-    display_row(0, 0, is_admin);
-    cout << ' ' << char(177) << char(177) << endl;
+    display_wall(4, 2, 1); display_separator(10, 218, 194, 191); display_wall(1, 2, 0); cout << endl;
+    display_wall(4, 2, 1); display_row(0, 0, is_admin); display_wall(1, 2, 0); cout << endl;
 
     for (short int i = 1; i < 7; i++) {
 
         if (3 < i) {
-            cout << "    " << char(177) << char(177) << ' ';
-            for (short int j = 0; j < aux; j++) cout << "    ";
-            display_separator(10 - 2*aux, 192, 197, 217);
-            for (short int j = 0; j < aux; j++) cout << "    ";
-            cout << ' ' << char(177) << char(177) << endl;
+            display_wall(4, 2, 1 + 4*aux); display_separator(10 - 2*aux, 192, 197, 217); display_wall(1 + 4*aux, 2, 0); cout << endl;
             aux = i - 3;
         }
         else {
-            cout << "    " << char(177) << char(177) << ' ';
-            display_separator(10, 195, 197, 180);
-            cout << ' ' << char(177) << char(177) << endl;
+            display_wall(4, 2, 1); display_separator(10, 195, 197, 180); display_wall(1, 2, 0); cout << endl;
         }
-
-        display_row(i, aux, is_admin);
-        cout << ' ' << char(177) << char(177) << endl;
+        display_wall(4, 2, 1 + 4*aux); display_row(i, aux, is_admin); display_wall(1 + 4*aux, 2, 0); cout << endl;
     }
+    display_wall(4, 2, 13); display_separator(4, 192, 193, 217); display_wall(13, 2, 0); cout << endl;
 
-    cout << "    " << char(177) << char(177) << ' ';
-    for (short int j = 0; j < 3; j++) cout << "    ";
-    display_separator(4, 192, 193, 217);
-    for (short int j = 0; j < 3; j++) cout << "    ";
-    cout << ' ' << char(177) << char(177) << endl;
+    display_wall(4, 2, 22); display_wall(21, 2, 0); cout << endl;
+    display_wall(4, 2, 22); display_wall(21, 2, 0); cout << endl;
+    display_wall(4, 2, 22); display_wall(21, 2, 0); cout << endl;
 
-    cout << "    " << char(177) << char(177);
-    for (short int j = 0; j < 39; j++) cout << ' ';
-    cout << "    " << char(177) << char(177) << ' ' << endl;
-
-    cout << "    " << char(177) << char(177) << "      " << char(177);
-    for (short int j = 0; j < 29; j++) cout << char(178);
-    cout << char(177) << "      " << char(177) << char(177) << endl << "    ";
-
-    for (short int j = 0; j < 47; j++) cout << char(177);
-    cout << endl << endl;
+    display_wall(4, 2, 5); cout << char(177); for (short int j = 0; j < 31; j++) cout << char(178); cout << char(177); display_wall(5, 2, 0); cout << endl;
+    display_wall(4, 47, 0); cout << endl;
+    cout << endl;
 }
 
 

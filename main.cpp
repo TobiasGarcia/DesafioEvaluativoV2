@@ -10,7 +10,7 @@ int main() {
 
     Room room(0);
 
-    room.display_seats(true);
+    room.display_seats(false);
 
 
     //code_file("nat.txt", "sudo.txt", 12);
