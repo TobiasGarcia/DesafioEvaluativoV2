@@ -3,6 +3,9 @@
 #include "dialog.h"
 #include "code_decode.h"
 
+//Estas son todas las implementaciones de las funciones que administrarán el inicio de sesión
+//tanto de los usuarios como del admin.
+
 bool login_admin(unsigned int seed) {
 
     //Solicitamos al usuario la contraseña para iniciar sesión como admin.

@@ -8,10 +8,10 @@ using namespace std;
 
 int main() {
 
-    Room room(0, "../DesafioEvaluativoV2/data/rooms/room1.txt");
+    Room room(1);
 
     room.display_seats(true);
-    room.save_room("../DesafioEvaluativoV2/data/rooms/room1.txt");
+    room.save_room();
 
 
     //code_file("../DesafioEvaluativo/data/nat.txt", "../DesafioEvaluativo/data/sudo.txt", 12);
