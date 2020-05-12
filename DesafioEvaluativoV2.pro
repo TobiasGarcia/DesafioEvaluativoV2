@@ -9,11 +9,11 @@ SOURCES += \
         dialog.cpp \
         login.cpp \
         main.cpp \
-        movie_room.cpp
+        show.cpp
 
 HEADERS += \
     adminSession.h \
     code_decode.h \
     dialog.h \
     login.h \
-    movie_room.h
+    show.h

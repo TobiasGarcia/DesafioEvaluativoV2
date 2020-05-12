@@ -1,17 +1,25 @@
 #include <iostream>
 #include "dialog.h"
 #include "login.h"
-#include "movie_room.h"
+#include "show.h"
 //#include "code_decode.h"
 
 using namespace std;
 
 int main() {
 
-    Room room(1);
+    vector<Show> shows;
 
-    room.display_seats(true);
-    room.save_room();
+    cout << get_shows(shows) << endl;
+
+//    bool exists;
+//    Show show(0, exists);
+
+//    show.display_seats(false);
+//    show.save_show(0);
+
+//    room.display_seats(true);
+//    room.save_room();
 
 
     //code_file("../DesafioEvaluativo/data/nat.txt", "../DesafioEvaluativo/data/sudo.txt", 12);
