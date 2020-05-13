@@ -5,9 +5,50 @@
 
 using namespace std;
 
-void display_welcome() {
-    system("cls");
-    cout << endl << " WELCOME TO THE CINEMA!";
+string get_non_empty_line(string question, string warning) {
+
+    string ans;
+    bool repeat = true;
+
+    //Este ciclo se pudo haber hecho con un while (true), pero en lo personal prefiero no utilzarlo
+    //pues no me parece una buena práctica de programación.
+
+    while (repeat) {
+        cout << "\n  " << question << ' ';
+        fflush(stdin);
+        getline(cin, ans);
+        if (ans.length() != 0) repeat = false;
+        else cout << warning << endl;
+    }
+    return ans;
+}
+
+bool yes_no_question(string question, string warning) {
+
+    string ans;
+    short int len;
+    bool repeat = true, bool_ans;
+
+    //Este ciclo se pudo haber hecho con un while (true), pero en lo personal prefiero no utilzarlo
+    //pues no me parece una buena práctica de programación.
+
+    while (repeat) {
+        cout << "\n  " << question << ' ';
+        fflush(stdin);
+        getline(cin, ans);
+
+        len = ans.length();
+        if ((len == 3) and ((ans[0] == 'y') or (ans[0] == 'Y')) and ((ans[1] == 'e') or (ans[1] == 'E')) and ((ans[2] == 's') or (ans[2] == 'S'))) {
+            repeat = false;
+            bool_ans = true;
+        }
+        else if ((len == 2) and ((ans[0] == 'n') or (ans[0] == 'N')) and ((ans[1] == 'o') or (ans[1] == 'O'))) {
+            repeat = false;
+            bool_ans = false;
+        }
+        else cout << warning << endl;
+    }
+    return bool_ans;
 }
 
 bool get_id_input(unsigned long long int &id, bool &is_admin) {
@@ -33,36 +74,6 @@ bool get_id_input(unsigned long long int &id, bool &is_admin) {
         return true;
     }
     else return str2int(ans, id);
-}
-
-bool get_int_input(unsigned int &num) {
-
-    string ans;
-
-    fflush(stdin);
-    getline(cin, ans);
-
-    return str2int(ans, num);
-}
-
-unsigned int ask(string question, string *&options, unsigned short int num) {
-    //Recibe un string con una pregunta que muestra en pantalla,
-    //un array de strings que son opciones que también son impresas en pantalla y
-    //el número de éstas.
-
-    string ans;
-    unsigned int opt;
-
-    cout << question << endl << endl;
-    for (short int i = 0; i < num; i++) cout << (i + 1) << ". " << options[i] << endl;
-
-    cout << endl << "Enter your option (1 - " << num << "): ";
-    while (!get_int_input(opt) or (opt < 1) or (num < opt)) {
-        cout << "Sorry, that is not a valid option" << endl << endl;
-        cout << "Enter your option (1 - " << num << "): ";
-    }
-    delete[] options;
-    return unsigned(opt);
 }
 
 void get_file_name(char *&file_name, bool txt) {
@@ -92,6 +103,27 @@ void get_file_name(char *&file_name, bool txt) {
         file_name[i++] = 'a';
         file_name[i] = 't';
     }
+}
+
+short int ask(string question, string *&options, short int num) {
+    //Recibe un string con una pregunta que muestra en pantalla,
+    //un array de strings que son opciones que también son impresas en pantalla y
+    //el número de éstas.
+
+    string ans;
+    short int opt;
+
+    cout << question << endl << endl;
+    for (short int i = 0; i < num; i++) cout << (i + 1) << ". " << options[i];
+
+    opt = get_int_input("Enter your option (1 - " + to_string(num) + "): ", "Sorry, that is not a valid option", short(1), num);
+    delete[] options;
+    return opt;
+}
+
+void display_welcome() {
+    system("cls");
+    cout << endl << " WELCOME TO THE CINEMA!";
 }
 
 bool Qfile(char file_name[]) {
@@ -132,16 +164,12 @@ void get_files_names(string &source_file, string &output_file, bool code) {
     output_file += (code?".dat":".txt");
 }
 
-unsigned int get_seed() {
+short int get_seed() {
     //Pregunta por la semilla de codificación.
 
-    unsigned int seed;
-    cout << "\nEnter the codification seed: ";
-    while (!get_int_input(seed) or (seed == 0)) {
-        cout << "Sorry, the seed must be a positive integer" << endl << endl;
-        cout << "Enter the codification seed: ";
-    }
-    return unsigned(seed);
+    short int seed;
+    seed = get_int_input("Enter the codification seed: ", "Sorry, the seed must be a positive integer", short(1));
+    return seed;
 }
 
 unsigned int display_codification_menu() {

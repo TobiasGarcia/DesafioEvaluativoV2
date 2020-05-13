@@ -47,6 +47,7 @@ Show::Show(short int id, bool &exists) {
         getline(file, line); genre = line;
         getline(file, line); str2int(line, clasi);
         getline(file, line); str2int(line, hour);
+        getline(file, line); str2int(line, finish_hour);
         getline(file, line); str2int(line, duration);
         getline(file, line); str2int(line, room);
         getline(file, line); str2int(line, empty_places);
@@ -60,33 +61,36 @@ Show::Show(short int id, bool &exists) {
     else exists = false;
 }
 
-Show::Show(string _movie_name, bool _is_3D, string _genre, short int _clasi, short int _hour, short int _duration, short int _room, short int _empty_places) {
+Show::Show(string _movie_name, bool _is_3D, string _genre, short int _clasi, short int _hour, short int _finish_hour, short int _duration, short int _room, short int _empty_places) {
 
-    movie_name = _movie_name; is_3D = _is_3D; genre = _genre; clasi = _clasi;
-    hour = _hour; duration = _duration; room = _room; empty_places = _empty_places;
+    movie_name = _movie_name; is_3D = _is_3D; genre = _genre; clasi = _clasi; hour = _hour;
+    finish_hour = _finish_hour; duration = _duration; room = _room; empty_places = _empty_places;
 
     for (short int row = 0; row < 4; row++) fill_row("10 10 10 10 10 10 10 10 10 10 ", row);
-    fill_row("10 10 10 10 10 10 10 10 ", 4);
-    fill_row("10 10 10 10 10 10 ", 5);
-    fill_row("10 10 10 10 ", 6);
+    fill_row("   10 10 10 10 10 10 10 10 ", 4);
+    fill_row("      10 10 10 10 10 10 ", 5);
+    fill_row("         10 10 10 10 ", 6);
 }
 
-void Show::save_show(short int id) {
+void Show::save_show(short int id) const {
 
     //No hace falta el exists porque si no está el archivo, lo crea.
 
-    fstream file("../DesafioEvaluativoV2/data/shows/show" + to_string(id) + ".txt", ios::in);
+    //Guarda carácteres raros pero no son problema porque lee lo que debería leer.
+
+    fstream file("../DesafioEvaluativoV2/data/shows/show" + to_string(id) + ".txt", ios::out);
     file << movie_name << '\n';
     file << (is_3D?'1':'0') << '\n';
     file << genre << '\n';
     file << to_string(clasi) << '\n';
     file << to_string(hour) << '\n';
+    file << to_string(finish_hour) << '\n';
     file << to_string(duration) << '\n';
     file << to_string(room) << '\n';
     file << to_string(empty_places) << '\n';
 
     string seat;
-    short int j_min, j_max;
+    short int j_min = 0, j_max = 10;
 
     for (short int i = 0; i < 7; i++) {
         if (3 < i) {
@@ -243,20 +247,118 @@ bool get_shows(vector<Show> &shows) {
             Show show(id, exists);
             if (exists) shows.push_back(show);
             else {
-                cout << endl << "Sorry, there is a '" << shows_num << "' in the shows_num.txt file," << endl;
-                cout << "but there is no show" << id << ".txt file in the shows folder." << endl;
+                cout << endl << "  Sorry, there is a '" << shows_num << "' in the shows_num.txt file," << endl;
+                cout << "  but there is no show" << id << ".txt file in the shows folder." << endl;
                 return false;
             }
         }
         return true;
     }
     else {
-        cout << endl << "Sorry, the shows_num.txt file could not be found." << endl;
+        cout << endl << "  Sorry, the shows_num.txt file could not be found." << endl;
         return false;
     }
 }
 
+bool is_room_available(const vector<Show> &shows, const short int &room, const short int &hour, short int finish_hour, short int &show_hour, short int &show_finish_hour) {
 
+    short int len = shows.size();
+    for (short int i = 0; i < len; i++) {
+        show_hour = shows.at(i).get_hour();
+        show_finish_hour = shows.at(i).get_finish_hour();
+        if ((shows.at(i).get_room() == room) and ((hour < show_finish_hour) and (show_hour < finish_hour))) return false;
+    }
+    return true;
+}
+
+void add_show(vector<Show> &shows) {
+
+    bool is_3D, ask = true;
+    string movie_name, genre, ans;
+    short int clasi, hour, finish_hour, duration, room, show_hour, show_finish_hour;
+
+    //---------------------------------------------------MOSTRAR LOS SHOWS PROGRAMADOS
+
+    movie_name = get_non_empty_line("Enter the name of the movie:");
+    is_3D = yes_no_question("The movie is in 3D? (Enter 'Yes' if it is, or 'No' otherwise)");
+    genre = get_non_empty_line("Enter the genre of the movie:");
+
+    //Técnicamente en todos las warnings siguintes debería decir '...must be a positive integer...', pero
+    //considero que eso no sería amigable con el usuario, por lo cual lo dejamos en '...must be a number...'.
+
+    clasi = get_int_input("Enter the classification of the movie:", "Sorry, the classification must be a number.", 0);
+    hour = get_int_input("At what time will the movie be shown? (In 24 hours format)", "Sorry, the hour must be a number between 0 and 23.", 0, 23);
+    duration = get_int_input("Enter the duration of the movie: (In minutes)", "Sorry, the duration must be a number.", 1);
+    finish_hour = hour + ceiling(float(duration)/60.0f);
+    room = get_int_input("In which of the four rooms will the movie be shown? (Enter the room number)", "Sorry, the room number must be a number between 1 and 4.", 1, 4);
+
+    while (ask and !is_room_available(shows, room, hour, finish_hour, show_hour, show_finish_hour)) {
+        system("cls");
+        cout << endl << "  Sorry, room " << room << " is reserved from " << show_hour << ":00 to " << show_finish_hour << ":00, and you need to reserved" << endl;
+        cout << "  the room " << finish_hour - hour << " hour(s), because your movie lasts " << duration << " minutes." << endl << endl;
+        cout << "  Do you want to change the room or the hour?";
+        ask = yes_no_question("Enter 'Yes' for change they, or 'No' for cancel the show)");
+
+        if (ask) {
+
+            //---------------------------------------------------MOSTRAR LOS SHOWS PROGRAMADOS
+
+            system("cls");
+            hour = get_int_input("At what time will the movie be shown? (In 24 hours format)", "Sorry, the hour must be a number between 0 and 23.", 0, 23);
+            finish_hour = hour + ceiling(float(duration)/60.0f);
+            room = get_int_input("In which of the four rooms will the movie be shown? (Enter the room number)", "Sorry, the room number must be a number between 1 and 4.", 1, 4);
+        }
+    }
+
+    if (ask) {
+        Show show(movie_name, is_3D, genre, clasi, hour, finish_hour, duration, room, 58);
+        shows.push_back(show);
+    }
+}
+
+void save_shows(const vector<Show> &shows) {
+
+    //No hay que usar exists pues como es ios::out crea el archivo en caso de no encontrarlo.
+
+    short int len = shows.size();
+
+    fstream file("../DesafioEvaluativoV2/data/shows/shows_num.txt", ios::out);
+    file << len;
+    file.close();
+
+    for (short int i = 0; i < len; i++) {
+        shows.at(i).save_show(i);
+    }
+}
+
+void display_edge(short int size, short int chr) {
+    for (short int i = 0; i < size; i++) cout << char(205); cout << char(chr);
+}
+
+//Delgados
+//218 196 194 196 191
+//179     179     179
+//195 196 197 196 180
+//179     179     179
+//192 196 193 196 217
+
+//Gruesos
+//201 205 203 205 187
+//186     186     186
+//204 196 206 196 185
+//186     186     186
+//200 205 202 205 188
+
+void display_shows(vector<Show> shows) {
+
+    cout << endl;
+    cout << "   " << char(201); display_edge(4, 203); display_edge(20, 203); display_edge(12, 203); display_edge(6, 203); display_edge(10, 203); display_edge(8, 203); display_edge(7, 203); display_edge(9, 203); display_edge(6, 187); cout << endl;
+    cout << "   " << char(186) << " ID " << char(186) << "        Name        " << char(186) << "   Genre    " << char(186) << "  3D  " << char(186) << " Duration " << char(186) << " Class. " << char(186) << " Seats " << char(186) << "  Hour   " << char(186) << " Room " << char(186) << endl;
+
+    cout << "                                                                               7:00 pm";
+
+    cout << endl << endl;
+}
 
 
 

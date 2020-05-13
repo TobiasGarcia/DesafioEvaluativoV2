@@ -241,11 +241,8 @@ bool login(unsigned int seed, bool &is_admin) {
             //Si no la encontramos, es porque el usuario no se ha registrado aún,
             //por lo cual le preguntamos si se quiere registrar.
 
-            cout << endl << "  It looks that you don't have an account yet, do you want to create one?" << endl;
-            cout << "  Enter 'YES' for create an account, or something different not to create it: ";
-            fflush(stdin); getline(cin, ans);
-
-            if (ans == "YES") {
+            cout << endl << "  It looks that you don't have an account yet, do you want to create one?";
+            if (yes_no_question("Enter 'Yes' for create an account, or 'No' not to create it:")) {
 
                 //En caso afirmativo llamamos a la función register_user().
 
