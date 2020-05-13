@@ -297,7 +297,7 @@ bool code_file(string path_nat, string path_code, unsigned int seed) {
         return true;
     }
     else {
-        cout << "Sorry, the native file could not be opened" << endl << endl;
+        cout << "  Sorry, the native file could not be opened" << endl << endl;
         return false;
     }
 }
@@ -314,7 +314,7 @@ bool decode_file(string path_code, string path_nat, unsigned int seed) {
         return true;
     }
     else {
-        cout << "Sorry, the code file could not be opened" << endl << endl;
+        cout << "  Sorry, the code file could not be opened" << endl << endl;
         return false;
     }
 }

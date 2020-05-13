@@ -15,6 +15,7 @@ public:
 
 class Show {
 private:
+    short int id;
     string movie_name;
 
     bool is_3D;
@@ -33,17 +34,17 @@ public:
     void fill_row(string line, short int row);
 
     //Para cargar el show desde una archivo.
-    Show(short int id, bool &exists);
+    Show(short int _id, bool &exists);
 
     //Para que el admin cree una show.
-    Show(string _movie_name, bool _is_3D, string _genre, short int _clasi, short int _hour,
+    Show(short int _id, string _movie_name, bool _is_3D, string _genre, short int _clasi, short int _hour,
          short int _finish_hour, short int _duration, short int _room, short int _empty_places);
 
-    void save_show(short int id) const;
+    void save_show(short int shows_num) const;
 
-    void display_row(short int row, const short int &aux, const bool &is_admin);
+    void display_row(short int row, const short int &aux, const bool &is_admin) const;
 
-    void display_seats(const bool &is_admin);
+    void display_seats(const bool &is_admin) const;
 
     string get_movie_name() const {return movie_name;}
 
@@ -55,7 +56,11 @@ public:
 
     short int get_room() const {return room;}
 
-    void display_show(short int id, const short int &size1, const short int &size2);
+    void display_show(const short int &size1, const short int &size2);
+
+    bool get_index(short &index, bool is_row, const bool &is_admin, short int row = 0);
+
+    void offer_seats(short int shows_num);
 };
 
 bool get_shows(vector<Show> &shows);

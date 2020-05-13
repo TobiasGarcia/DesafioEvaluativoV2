@@ -12,7 +12,7 @@ void Show::fill_row(string line, short row) {
             seats[0][j].sale_type = int(line[1 + 3*j]) - 48;
         }
     }
-    else if ((0 < row) and (row < 4)) {
+    else if (is_in_range(row, 1, 3)) {
         for (short int j = 0; j < 10; j++) {
             seats[row][j].is_empty = (line[3*j] == '1');
             seats[row][j].sale_type = int(line[1 + 3*j]) - 48;
@@ -34,8 +34,9 @@ void Show::fill_row(string line, short row) {
     }
 }
 
-Show::Show(short int id, bool &exists) {
+Show::Show(short int _id, bool &exists) {
 
+    id = _id;
     fstream file("../DesafioEvaluativoV2/data/shows/show" + to_string(id) + ".txt", ios::in);
     if (file.is_open()) {
 
@@ -61,9 +62,9 @@ Show::Show(short int id, bool &exists) {
     else exists = false;
 }
 
-Show::Show(string _movie_name, bool _is_3D, string _genre, short int _clasi, short int _hour, short int _finish_hour, short int _duration, short int _room, short int _empty_places) {
+Show::Show(short int _id, string _movie_name, bool _is_3D, string _genre, short int _clasi, short int _hour, short int _finish_hour, short int _duration, short int _room, short int _empty_places) {
 
-    movie_name = _movie_name; is_3D = _is_3D; genre = _genre; clasi = _clasi; hour = _hour;
+    id =_id; movie_name = _movie_name; is_3D = _is_3D; genre = _genre; clasi = _clasi; hour = _hour;
     finish_hour = _finish_hour; duration = _duration; room = _room; empty_places = _empty_places;
 
     for (short int row = 0; row < 4; row++) fill_row("10 10 10 10 10 10 10 10 10 10 ", row);
@@ -72,13 +73,17 @@ Show::Show(string _movie_name, bool _is_3D, string _genre, short int _clasi, sho
     fill_row("         10 10 10 10 ", 6);
 }
 
-void Show::save_show(short int id) const {
+void Show::save_show(short int shows_num) const {
 
     //No hace falta el exists porque si no está el archivo, lo crea.
 
     //Guarda carácteres raros pero no son problema porque lee lo que debería leer.
 
-    fstream file("../DesafioEvaluativoV2/data/shows/show" + to_string(id) + ".txt", ios::out);
+    fstream file("../DesafioEvaluativoV2/data/shows/shows_num.txt", ios::out);
+    file << shows_num;
+    file.close();
+
+    file.open("../DesafioEvaluativoV2/data/shows/show" + to_string(id) + ".txt", ios::out);
     file << movie_name << '\n';
     file << (is_3D?'1':'0') << '\n';
     file << genre << '\n';
@@ -167,7 +172,7 @@ void colored_display(const Seat &seat, const bool &is_admin) {
     else cout << chr;
 }
 
-void Show::display_row(short int row, const short int &aux, const bool &is_admin) {
+void Show::display_row(short int row, const short int &aux, const bool &is_admin) const {
 
     //Éste método imprime en pantalla la fila row de la matriz seats, aux es para
     //identifiacar si hay que mostrar espacios antes de los asientos como sucede
@@ -194,7 +199,7 @@ void display_separator(short int size, short int chr1, short int chr2, short int
     cout << char(196) << char(196) << char(196) << char(chr3);
 }
 
-void Show::display_seats(const bool &is_admin) {
+void Show::display_seats(const bool &is_admin) const {
 
     //Éste método imprime en pantalla la sala de la película.
 
@@ -313,7 +318,7 @@ void get_longest_size(const vector<Show> &shows, short int &size1, short int &si
     }
 }
 
-void Show::display_show(short int id, const short int &size1, const short int &size2) {
+void Show::display_show(const short int &size1, const short int &size2) {
 
 
     //Pasamos de horario militar al convencional, AMIGBALES, no funciona con el -1.
@@ -332,6 +337,127 @@ void Show::display_show(short int id, const short int &size1, const short int &s
     cout << char(186);
 }
 
+bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int row) {
+
+    bool ask = true;
+    string ans, msg;
+
+    if (is_admin) msg = "  Which seat do you want to offer?";
+    else msg = "  Which seat do you want to reserve?";
+
+    system("cls");
+
+    //Delgados
+    //218 196 194 196 191
+    //179     179     179
+    //195 196 197 196 180
+    //179     179     179
+    //192 196 193 196 217
+
+    //Gruesos
+    //201 205 203 205 187
+    //186     186     186
+    //204 196 206 196 185
+    //186     186     186
+    //200 205 202 205 188
+
+    while (ask) {
+
+        display_seats(is_admin);
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+        cout << "  LEGEND" << endl;
+        cout << "  O: General seat    X: Sold seat      " << char(254) << ": Seat with VibroSound technology" << endl << endl;
+        cout << "  The color means in which modality the seat is being offered:" << endl;
+        cout << "  ";
+
+        SetConsoleTextAttribute(hConsole, 15);
+        cout << "White: General";
+        SetConsoleTextAttribute(hConsole, 7);
+        cout << " ---- ";
+        SetConsoleTextAttribute(hConsole, 12);
+        cout << "Red: VibroSound";
+        SetConsoleTextAttribute(hConsole, 7);
+        cout << " ---- ";
+        SetConsoleTextAttribute(hConsole, 6);
+        cout << "Yellow: Gold";
+        SetConsoleTextAttribute(hConsole, 7);
+        cout << endl << endl << msg << endl;
+
+        //Mostramos la fila si ya estamos en la columna.
+
+        if (!is_row) cout << endl << "  Current Row: " << char(row + 65) << endl;
+
+        cout << "  Enter the " << (is_row?"row":"column") << " of the seat, or an empty space for return: (" << (is_row?'A':'1') << " - " << (is_row?"G":"10") << ") ";
+        fflush(stdin);
+        getline(cin, ans);
+
+        if ((ans == "") and yes_no_question("You want to return? (Enter 'Yes' or 'No')")) return false;
+        else if (ans == "") system("cls");
+        else if (is_row and ((1 < ans.length()) or (!is_in_range(ans[0], 65, 71) and !is_in_range(ans[0], 97, 103)))) {
+            cout << "  Sorry, the row must be a letter between A and G.";
+            cout << endl << endl << "  ";
+            system("pause");
+            system("cls");
+        }
+        else if (ans == "10") {
+            ask = false;
+            index = 9;
+        }
+        else if (!is_row and ((1 < ans.length()) or !is_in_range(ans[0], 49, 57))) {//Es suficiente con 1 < len pues si fuera 0 habría saldio por la primera sentencia del if.
+            cout << "  Sorry, the column must be a number between 1 and 10.";
+            cout << endl << endl << "  ";
+            system("pause");
+            system("cls");
+        }
+        else {
+            ask = false;
+            if (is_row and (ans[0] < 72)) index = short(ans[0]) - 65; //Mayúscula.
+            else if (is_row) index = short(ans[0]) - 97; //Minúscula.
+            else index = short(ans[0]) - 49; //Número de la columna.
+        }
+    }
+    return true;
+}
+
+void Show::offer_seats(short int shows_num) {
+
+    bool ask = true;
+    short int row, column;
+
+    while (ask and get_index(row, true, true) and get_index(column, false, true, row)) {
+
+        if (!seats[row][column].is_empty) {
+            cout << endl << "  Sorry, the seat " << char(row + 65) << (column + 1) << " is sold, so we can't change the way it is offered" << endl << endl << "  ";
+            system("pause");
+            system("cls");
+        }
+        else if (seats[row][column].sale_type == -1) {
+            cout << endl << "  Sorry, that is not a seat" << endl << endl << "  ";
+            system("pause");
+            system("cls");
+        }
+        else if (!seats[row][column].is_vibro) {
+            cout << endl << "  Sorry, the seat " << char(row + 65) << (column + 1) << " doesn't have VibroSound technology," << endl;
+            cout << "  so it can only be offerd in General" << endl << endl << "  ";
+            system("pause");
+            system("cls");
+        }
+        else {
+            cout << endl << "  We can offer the seat " << char(row + 65) << (column + 1) << " in the modalities:" << endl;
+            cout << "  1. General     2. VibroSound     3. Gold" << endl << "  ";
+            //-1 para poder pasar a 0, 1 o 2.
+            seats[row][column].sale_type = get_int_input("In which of them do you want to offer it? (1 - 3)", "\nSorry, we only have these 3 modalities:\n  1. General     2. VibroSound     3. Gold", 1, 3) - 1;
+            cout << endl << "  The offer has been successfully placed!" << endl << endl << "  ";
+            system("pause");
+            system("cls");
+            display_seats(true);
+            ask = yes_no_question("Do you want to offer other seat? (Enter 'Yes' for offer other seat or 'No' for exit)");
+        }
+    }
+    save_show(shows_num);
+}
+
 void display_labels(const short int &size1, const short int &size2) {
 
     display_adapter_separator(201, 203, 187, size1, size2); cout << endl;
@@ -347,20 +473,6 @@ void display_labels(const short int &size1, const short int &size2) {
     cout << char(186);
 }
 
-//Delgados
-//218 196 194 196 191
-//179     179     179
-//195 196 197 196 180
-//179     179     179
-//192 196 193 196 217
-
-//Gruesos
-//201 205 203 205 187
-//186     186     186
-//204 196 206 196 185
-//186     186     186
-//200 205 202 205 188
-
 void display_shows(vector<Show> shows) {
 
     short int len = shows.size(), size1, size2;
@@ -374,7 +486,7 @@ void display_shows(vector<Show> shows) {
 
     for (short int i = 0; i < len; i++) {
         display_adapter_separator(204, 206, 185, size1, size2); cout << endl;
-        shows.at(i).display_show(i, size1, size2); cout << endl;
+        shows.at(i).display_show(size1, size2); cout << endl;
     }
 
     display_adapter_separator(200, 202, 188, size1, size2); cout << endl;
@@ -431,25 +543,12 @@ void add_show(vector<Show> &shows) {
     }
 
     if (ask) {
-        Show show(movie_name, is_3D, genre, clasi, hour, finish_hour, duration, room, 58);
+        Show show(shows.size(), movie_name, is_3D, genre, clasi, hour, finish_hour, duration, room, 58);
         shows.push_back(show);
     }
 }
 
-void save_shows(const vector<Show> &shows) {
 
-    //No hay que usar exists pues como es ios::out crea el archivo en caso de no encontrarlo.
-
-    short int len = shows.size();
-
-    fstream file("../DesafioEvaluativoV2/data/shows/shows_num.txt", ios::out);
-    file << len;
-    file.close();
-
-    for (short int i = 0; i < len; i++) {
-        shows.at(i).save_show(i);
-    }
-}
 
 
 

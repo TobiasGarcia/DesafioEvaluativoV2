@@ -2,6 +2,8 @@
 #include <iostream>
 #include <fstream>
 #include "code_decode.h"
+#include "show.h"
+#include <windows.h>
 
 using namespace std;
 
@@ -121,9 +123,16 @@ short int ask(string question, string *&options, short int num) {
     return opt;
 }
 
-void display_welcome() {
+void display_welcome(bool is_admin) {
     system("cls");
-    cout << endl << " WELCOME TO THE CINEMA!";
+    if (is_admin) {
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+        SetConsoleTextAttribute(hConsole, 6);
+        cout << "      .: ADMINISTRATION MENU :.";
+        SetConsoleTextAttribute(hConsole, 7);
+    }
+    else cout << endl << " WELCOME TO THE CINEMA!";
 }
 
 bool Qfile(char file_name[]) {
@@ -215,3 +224,53 @@ unsigned int display_practice_menu() {
     string *options = new string[3]{"Codification methods", "ATM application", "Exit"};
     return ask("     .: Practice 3 - Tobias Garcia Mejia :.", options, 3);
 }
+
+bool get_show_id(const vector<Show> &shows, short int &id, bool is_admin) {
+
+    string msg;
+    short int shows_num = shows.size();
+
+    if (is_admin) msg = "Enter the ID of the show where you want to offer seats, or 0 for exit:";
+    else msg = "Enter the ID of the show where you want to reserve a seat, or 0 for exit:";
+
+    display_shows(shows);
+
+    //Le restamos -1 para pasar a indices del vector Shows.
+
+    id = get_int_input(msg, "Sorry, the ID must be a number between 1 and " + to_string(shows_num), short(0), shows_num) - 1;
+    if (id == -1) return false;
+    else return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -2,6 +2,7 @@
 #define DIALOG_H
 
 #include <iostream>
+#include "show.h"
 
 using namespace std;
 
@@ -15,7 +16,7 @@ void get_file_name(char *&file_name, bool txt);
 
 short int ask(string question, string *&options, short int num);
 
-void display_welcome();
+void display_welcome(bool is_admin);
 
 bool Qfile(char file_name[]);
 
@@ -36,6 +37,11 @@ unsigned int display_user_menu();
 
 unsigned int display_practice_menu();
 
+bool get_show_id(const vector<Show> &shows, short int &id, bool is_admin);
+
+template <typename T>
+bool is_in_range(T num, short int min, short int max) {return ((min <= short(num)) and (short(num) <= max));}
+
 template <typename T>
 bool str2int(string str, T &num) {
 
@@ -47,8 +53,8 @@ bool str2int(string str, T &num) {
 
         //Si no es un digito retornamos false.
 
-        if ((str[i] < 48) or (57 < str[i])) return false;
-        else num = 10*num + (str[i] - 48);
+        if (is_in_range(str[i], 48, 57)) num = 10*num + (str[i] - 48);
+        else return false;
     }
     return true;
 }

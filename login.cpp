@@ -129,11 +129,7 @@ bool valid_password(string password) {
 
     //Verificamos que password posea entre 4 y 16 carácteres.
 
-    if ((len < 4) or (16 < len)) {
-        cout << endl << "  Sorry, your password must have between 4 and 16 characters" << endl << endl;
-        return false;
-    }
-    else {
+    if (is_in_range(len, 4, 16)) {
 
         //En caso de que sí posea entre 4 y 16 carácteres, recorremos la constraseña
         //y verificamos que esté conformada únicamente por enteros desde el 0 hasta
@@ -148,6 +144,10 @@ bool valid_password(string password) {
             }
         }
         return true;
+    }
+    else {
+        cout << endl << "  Sorry, your password must have between 4 and 16 characters" << endl << endl;
+        return false;
     }
 }
 
