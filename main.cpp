@@ -10,14 +10,10 @@ using namespace std;
 
 int main() {
 
-    foo('a');
-    foo(10);
-    foo(10.14);
+    vector<Show> shows;
+    get_shows(shows);
 
-//    vector<Show> shows;
-//    get_shows(shows);
-
-//    display_shows(shows);
+    shows.at(0).display_seats(false);
 
     //code_file("../DesafioEvaluativo/data/nat.txt", "../DesafioEvaluativo/data/sudo.txt", 12);
 

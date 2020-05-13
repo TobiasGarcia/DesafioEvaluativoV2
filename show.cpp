@@ -43,7 +43,7 @@ Show::Show(short int id, bool &exists) {
         string line;
 
         getline(file, line); movie_name = line;
-        getline(file, line); if (line == "1") is_3D = true;
+        getline(file, line); is_3D = (line == "1");
         getline(file, line); genre = line;
         getline(file, line); str2int(line, clasi);
         getline(file, line); str2int(line, hour);
@@ -201,30 +201,34 @@ void Show::display_seats(const bool &is_admin) {
     short int aux = 0;
 
     cout << endl << endl;
-    display_wall(4, 47, 0); cout << endl;
+    display_wall(4, 49, 0); cout << endl;
+    display_wall(4, 2, 23); display_wall(22, 2, 0); cout << endl;
 
-    display_wall(4, 2, 1); display_separator(10, 218, 194, 191); display_wall(1, 2, 0); cout << endl;
-    display_wall(4, 2, 1); display_row(0, 0, is_admin); display_wall(1, 2, 0); cout << endl;
+    display_wall(4, 2, 4); for (short int i = 0; i < 9; i++) cout << ' ' << (i + 1) << "  ";
+    cout << " 10"; display_wall(2, 2, 0); cout << endl;
+
+    display_wall(4, 2, 3); display_separator(10, 218, 194, 191); display_wall(1, 2, 0); cout << endl;
+    display_wall(4, 2, 1); cout << "A "; display_row(0, 0, is_admin); display_wall(1, 2, 0); cout << endl;
 
     for (short int i = 1; i < 7; i++) {
 
         if (3 < i) {
-            display_wall(4, 2, 1 + 4*aux); display_separator(10 - 2*aux, 192, 197, 217); display_wall(1 + 4*aux, 2, 0); cout << endl;
+            display_wall(4, 2, 3 + 4*aux); display_separator(10 - 2*aux, 192, 197, 217); display_wall(1 + 4*aux, 2, 0); cout << endl;
             aux = i - 3;
         }
         else {
-            display_wall(4, 2, 1); display_separator(10, 195, 197, 180); display_wall(1, 2, 0); cout << endl;
+            display_wall(4, 2, 3); display_separator(10, 195, 197, 180); display_wall(1, 2, 0); cout << endl;
         }
-        display_wall(4, 2, 1 + 4*aux); display_row(i, aux, is_admin); display_wall(1 + 4*aux, 2, 0); cout << endl;
+        display_wall(4, 2, 1); cout << char(65 + i); display_wall(0, 0, 1 + 4*aux); display_row(i, aux, is_admin); display_wall(1 + 4*aux, 2, 0); cout << endl;
     }
-    display_wall(4, 2, 13); display_separator(4, 192, 193, 217); display_wall(13, 2, 0); cout << endl;
+    display_wall(4, 2, 15); display_separator(4, 192, 193, 217); display_wall(13, 2, 0); cout << endl;
 
-    display_wall(4, 2, 22); display_wall(21, 2, 0); cout << endl;
-    display_wall(4, 2, 22); display_wall(21, 2, 0); cout << endl;
-    display_wall(4, 2, 22); display_wall(21, 2, 0); cout << endl;
+    display_wall(4, 2, 23); display_wall(22, 2, 0); cout << endl;
+    display_wall(4, 2, 23); display_wall(22, 2, 0); cout << endl;
+    display_wall(4, 2, 23); display_wall(22, 2, 0); cout << endl;
 
-    display_wall(4, 2, 5); cout << char(177); for (short int j = 0; j < 31; j++) cout << char(178); cout << char(177); display_wall(5, 2, 0); cout << endl;
-    display_wall(4, 47, 0); cout << endl;
+    display_wall(4, 2, 7); cout << char(177); for (short int j = 0; j < 31; j++) cout << char(178); cout << char(177); display_wall(5, 2, 0); cout << endl;
+    display_wall(4, 49, 0); cout << endl;
     cout << endl;
 }
 
@@ -260,6 +264,122 @@ bool get_shows(vector<Show> &shows) {
     }
 }
 
+void display_edge(short int size, short int chr) {
+    for (short int i = 0; i < size; i++) cout << char(205);
+    cout << char(chr);
+}
+
+void display_adapter_separator(short int chr1, short int chr2, short int chr3, short int size1, short int size2) {
+
+    //Es muy especifica para éste problema como tal.
+
+    cout << "   " << char(chr1);
+    display_edge(4, chr2);
+    display_edge(size1, chr2);
+    display_edge(size2, chr2);
+    display_edge(6, chr2);
+    display_edge(10, chr2);
+    display_edge(8, chr2);
+    display_edge(7, chr2);
+    display_edge(10, chr2);
+    display_edge(6, chr3);
+}
+
+void centred_display(string data, const short int &size) {
+
+    //La variable size es el espacio que ocupará todo el display.
+
+    short int spaces = (size - data.length() - 2), aux = int(spaces/2); //Más dos espacios de los extremos
+
+    for (short int i = 0; i < aux; i++) cout << ' ';
+    cout << ' ' << data << ' ';
+    for (short int i = 0; i < (spaces - aux); i++) cout << ' ';
+}
+
+void get_longest_size(const vector<Show> &shows, short int &size1, short int &size2) {
+
+    //Es muy especifica para éste problema como tal.
+    //Devuelve en size1 la longitd del mayor nombre, en size2
+    //la del mayor genero.
+
+    //Porque mínimo es el de 'Name' y el de 'Genre'.
+
+    size1 = 4;
+    size2 = 5;
+    short int len = shows.size();
+    for (short int i = 0; i < len; i++) {
+        if (size1 < short(shows.at(i).get_movie_name().length())) size1 = short(shows.at(i).get_movie_name().length());
+        if (size2 < short(shows.at(i).get_genre().length())) size2 = short(shows.at(i).get_genre().length());
+    }
+}
+
+void Show::display_show(short int id, const short int &size1, const short int &size2) {
+
+
+    //Pasamos de horario militar al convencional, AMIGBALES, no funciona con el -1.
+    string str_hour = (hour == 0)?"12":to_string(1 + (hour-1)%12);
+    str_hour += (hour < 12)?":00 am":":00 pm";
+
+    cout << "   " << char(186); centred_display(to_string(id + 1), 4);
+    cout << char(186); centred_display(movie_name, size1);
+    cout << char(186); centred_display(genre, size2);
+    cout << char(186); centred_display(is_3D?"Yes":"No", 6);
+    cout << char(186); centred_display(to_string(duration) + " mins", 10);
+    cout << char(186); centred_display(to_string(clasi) + "+", 8);
+    cout << char(186); centred_display(to_string(empty_places), 7);
+    cout << char(186); centred_display(str_hour, 10);
+    cout << char(186); centred_display(to_string(room), 6);
+    cout << char(186);
+}
+
+void display_labels(const short int &size1, const short int &size2) {
+
+    display_adapter_separator(201, 203, 187, size1, size2); cout << endl;
+    cout << "   " << char(186); centred_display("ID", 4);
+    cout << char(186); centred_display("Name", size1);
+    cout << char(186); centred_display("Genre", size2);
+    cout << char(186); centred_display("3D", 6);
+    cout << char(186); centred_display("Duration", 10);
+    cout << char(186); centred_display("Class.", 8);
+    cout << char(186); centred_display("Seats", 7);
+    cout << char(186); centred_display("Hour", 10);
+    cout << char(186); centred_display("Room", 6);
+    cout << char(186);
+}
+
+//Delgados
+//218 196 194 196 191
+//179     179     179
+//195 196 197 196 180
+//179     179     179
+//192 196 193 196 217
+
+//Gruesos
+//201 205 203 205 187
+//186     186     186
+//204 196 206 196 185
+//186     186     186
+//200 205 202 205 188
+
+void display_shows(vector<Show> shows) {
+
+    short int len = shows.size(), size1, size2;
+    get_longest_size(shows, size1, size2);
+    size1 += 2;//Añadimos los espacios vacios de los extremos.
+    size2 += 2;
+
+    cout << endl;
+    display_labels(size1, size2);
+    cout << endl;
+
+    for (short int i = 0; i < len; i++) {
+        display_adapter_separator(204, 206, 185, size1, size2); cout << endl;
+        shows.at(i).display_show(i, size1, size2); cout << endl;
+    }
+
+    display_adapter_separator(200, 202, 188, size1, size2); cout << endl;
+}
+
 bool is_room_available(const vector<Show> &shows, const short int &room, const short int &hour, short int finish_hour, short int &show_hour, short int &show_finish_hour) {
 
     short int len = shows.size();
@@ -277,7 +397,7 @@ void add_show(vector<Show> &shows) {
     string movie_name, genre, ans;
     short int clasi, hour, finish_hour, duration, room, show_hour, show_finish_hour;
 
-    //---------------------------------------------------MOSTRAR LOS SHOWS PROGRAMADOS
+    display_shows(shows);
 
     movie_name = get_non_empty_line("Enter the name of the movie:");
     is_3D = yes_no_question("The movie is in 3D? (Enter 'Yes' if it is, or 'No' otherwise)");
@@ -294,6 +414,7 @@ void add_show(vector<Show> &shows) {
 
     while (ask and !is_room_available(shows, room, hour, finish_hour, show_hour, show_finish_hour)) {
         system("cls");
+        display_shows(shows);
         cout << endl << "  Sorry, room " << room << " is reserved from " << show_hour << ":00 to " << show_finish_hour << ":00, and you need to reserved" << endl;
         cout << "  the room " << finish_hour - hour << " hour(s), because your movie lasts " << duration << " minutes." << endl << endl;
         cout << "  Do you want to change the room or the hour?";
@@ -301,9 +422,8 @@ void add_show(vector<Show> &shows) {
 
         if (ask) {
 
-            //---------------------------------------------------MOSTRAR LOS SHOWS PROGRAMADOS
-
             system("cls");
+            display_shows(shows);
             hour = get_int_input("At what time will the movie be shown? (In 24 hours format)", "Sorry, the hour must be a number between 0 and 23.", 0, 23);
             finish_hour = hour + ceiling(float(duration)/60.0f);
             room = get_int_input("In which of the four rooms will the movie be shown? (Enter the room number)", "Sorry, the room number must be a number between 1 and 4.", 1, 4);
@@ -329,60 +449,6 @@ void save_shows(const vector<Show> &shows) {
     for (short int i = 0; i < len; i++) {
         shows.at(i).save_show(i);
     }
-}
-
-void display_edge(short int size, short int chr) {
-    for (short int i = 0; i < size; i++) cout << char(205);
-    cout << char(chr);
-}
-
-void display_adapter_separator(short int chr1, short int chr2, short int chr3) {
-    cout << "   " << char(chr1);
-    display_edge(4, chr2);
-    display_edge(20, chr2);
-    display_edge(12, chr2);
-    display_edge(6, chr2);
-    display_edge(10, chr2);
-    display_edge(8, chr2);
-    display_edge(7, chr2);
-    display_edge(10, chr2);
-    display_edge(6, chr3);
-    cout << endl;
-}
-
-//void display_show(Show show) {
-//    cout << "  " << char(186) <<
-//}
-
-//template <>
-//void beauty_display(short int data) {
-//    cout << "ONLY SHORT INT";
-//}
-
-//Delgados
-//218 196 194 196 191
-//179     179     179
-//195 196 197 196 180
-//179     179     179
-//192 196 193 196 217
-
-//Gruesos
-//201 205 203 205 187
-//186     186     186
-//204 196 206 196 185
-//186     186     186
-//200 205 202 205 188
-
-void display_shows(vector<Show> shows) {
-
-    cout << endl;
-
-    display_adapter_separator(201, 203, 187);
-    cout << "   " << char(186) << " ID " << char(186) << "        Name        " << char(186) << "   Genre    " << char(186) << "  3D  " << char(186) << " Duration " << char(186) << " Class. " << char(186) << " Seats " << char(186) << "   Hour   " << char(186) << " Room " << char(186) << endl;
-    display_adapter_separator(204, 206, 185);
-    cout << "                                                                                7:00 pm";
-
-    cout << endl << endl;
 }
 
 

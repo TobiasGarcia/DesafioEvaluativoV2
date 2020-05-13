@@ -45,11 +45,17 @@ public:
 
     void display_seats(const bool &is_admin);
 
+    string get_movie_name() const {return movie_name;}
+
+    string get_genre() const {return genre;}
+
     short int get_hour() const {return hour;}
 
     short int get_finish_hour() const {return finish_hour;}
 
     short int get_room() const {return room;}
+
+    void display_show(short int id, const short int &size1, const short int &size2);
 };
 
 bool get_shows(vector<Show> &shows);
@@ -69,26 +75,7 @@ int ceiling(T num) {
     else return (num + 1);
 }
 
-
-
-
 //template <typename T>
 //void fun(T a);
-
-template <typename T>
-void foo(T a) {
-    cout << "General templete: " << a << endl << endl;
-}
-
-template<>
-void foo(int a) {
-    cout << "Specialized templete for int type: " << a << endl << endl;
-}
-
-template<>
-void foo(char a) {
-    cout << "Specialized templete for char type: " << a << endl << endl;
-}
-
 
 #endif // SHOW_H
