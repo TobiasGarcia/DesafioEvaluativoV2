@@ -69,4 +69,26 @@ int ceiling(T num) {
     else return (num + 1);
 }
 
+
+
+
+//template <typename T>
+//void fun(T a);
+
+template <typename T>
+void foo(T a) {
+    cout << "General templete: " << a << endl << endl;
+}
+
+template<>
+void foo(int a) {
+    cout << "Specialized templete for int type: " << a << endl << endl;
+}
+
+template<>
+void foo(char a) {
+    cout << "Specialized templete for char type: " << a << endl << endl;
+}
+
+
 #endif // SHOW_H

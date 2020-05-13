@@ -332,8 +332,32 @@ void save_shows(const vector<Show> &shows) {
 }
 
 void display_edge(short int size, short int chr) {
-    for (short int i = 0; i < size; i++) cout << char(205); cout << char(chr);
+    for (short int i = 0; i < size; i++) cout << char(205);
+    cout << char(chr);
 }
+
+void display_adapter_separator(short int chr1, short int chr2, short int chr3) {
+    cout << "   " << char(chr1);
+    display_edge(4, chr2);
+    display_edge(20, chr2);
+    display_edge(12, chr2);
+    display_edge(6, chr2);
+    display_edge(10, chr2);
+    display_edge(8, chr2);
+    display_edge(7, chr2);
+    display_edge(10, chr2);
+    display_edge(6, chr3);
+    cout << endl;
+}
+
+//void display_show(Show show) {
+//    cout << "  " << char(186) <<
+//}
+
+//template <>
+//void beauty_display(short int data) {
+//    cout << "ONLY SHORT INT";
+//}
 
 //Delgados
 //218 196 194 196 191
@@ -352,10 +376,11 @@ void display_edge(short int size, short int chr) {
 void display_shows(vector<Show> shows) {
 
     cout << endl;
-    cout << "   " << char(201); display_edge(4, 203); display_edge(20, 203); display_edge(12, 203); display_edge(6, 203); display_edge(10, 203); display_edge(8, 203); display_edge(7, 203); display_edge(9, 203); display_edge(6, 187); cout << endl;
-    cout << "   " << char(186) << " ID " << char(186) << "        Name        " << char(186) << "   Genre    " << char(186) << "  3D  " << char(186) << " Duration " << char(186) << " Class. " << char(186) << " Seats " << char(186) << "  Hour   " << char(186) << " Room " << char(186) << endl;
 
-    cout << "                                                                               7:00 pm";
+    display_adapter_separator(201, 203, 187);
+    cout << "   " << char(186) << " ID " << char(186) << "        Name        " << char(186) << "   Genre    " << char(186) << "  3D  " << char(186) << " Duration " << char(186) << " Class. " << char(186) << " Seats " << char(186) << "   Hour   " << char(186) << " Room " << char(186) << endl;
+    display_adapter_separator(204, 206, 185);
+    cout << "                                                                                7:00 pm";
 
     cout << endl << endl;
 }

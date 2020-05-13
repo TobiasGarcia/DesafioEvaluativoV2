@@ -6,12 +6,18 @@
 
 using namespace std;
 
+
+
 int main() {
 
-    vector<Show> shows;
-    get_shows(shows);
+    foo('a');
+    foo(10);
+    foo(10.14);
 
-    display_shows(shows);
+//    vector<Show> shows;
+//    get_shows(shows);
+
+//    display_shows(shows);
 
     //code_file("../DesafioEvaluativo/data/nat.txt", "../DesafioEvaluativo/data/sudo.txt", 12);
 
