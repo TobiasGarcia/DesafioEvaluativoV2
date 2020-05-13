@@ -3,6 +3,7 @@
 #include "login.h"
 #include "show.h"
 #include "adminSession.h"
+#include "userSession.h"
 //#include "code_decode.h"
 
 using namespace std;
@@ -11,11 +12,10 @@ using namespace std;
 
 int main() {
 
-    short int id;
     vector<Show> shows;
     get_shows(shows);
 
-    admin_session(shows);
+    user_session(shows);
 
     //code_file("../DesafioEvaluativo/data/nat.txt", "../DesafioEvaluativo/data/sudo.txt", 12);
 

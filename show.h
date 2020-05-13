@@ -61,6 +61,8 @@ public:
     bool get_index(short &index, bool is_row, const bool &is_admin, short int row = 0);
 
     void offer_seats(short int shows_num);
+
+    void reserve_seat(short int shows_num);
 };
 
 bool get_shows(vector<Show> &shows);

@@ -366,8 +366,12 @@ bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int 
         display_seats(is_admin);
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-        cout << "  LEGEND" << endl;
-        cout << "  O: General seat    X: Sold seat      " << char(254) << ": Seat with VibroSound technology" << endl << endl;
+        cout << "  -------------------------------LEGEND-------------------------------" << endl;
+        cout << "  O: Empty seat    X: Sold seat      ";
+
+        if (is_admin) cout << char(254) << ": Seat with VibroSound technology" << endl << endl;
+        else cout << endl << endl;
+
         cout << "  The color means in which modality the seat is being offered:" << endl;
         cout << "  ";
 
@@ -386,7 +390,7 @@ bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int 
 
         //Mostramos la fila si ya estamos en la columna.
 
-        if (!is_row) cout << endl << "  Current Row: " << char(row + 65) << endl;
+        if (!is_row) cout << endl << "  CURRENT ROW: " << char(row + 65) << endl;
 
         cout << "  Enter the " << (is_row?"row":"column") << " of the seat, or an empty space for return: (" << (is_row?'A':'1') << " - " << (is_row?"G":"10") << ") ";
         fflush(stdin);
@@ -453,6 +457,76 @@ void Show::offer_seats(short int shows_num) {
             system("cls");
             display_seats(true);
             ask = yes_no_question("Do you want to offer other seat? (Enter 'Yes' for offer other seat or 'No' for exit)");
+        }
+    }
+    save_show(shows_num);
+}
+
+void Show::reserve_seat(short shows_num) {
+
+    bool ask = true;
+    unsigned int price;
+    short int row, column;
+
+    while (ask and get_index(row, true, false) and get_index(column, false, false, row)) {
+
+        if (!seats[row][column].is_empty) {
+            cout << endl << "  Sorry, the seat " << char(row + 65) << (column + 1) << " is already reserved" << endl << endl << "  ";
+            system("pause");
+            system("cls");
+        }
+        else if (seats[row][column].sale_type == -1) {
+            cout << endl << "  Sorry, that is not a seat" << endl << endl << "  ";
+            system("pause");
+            system("cls");
+        }
+        else {
+
+            system("cls");
+            display_seats(false);
+
+            HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+            if (seats[row][column].sale_type == 2) {
+                price = 19900;
+                cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in ";
+
+                SetConsoleTextAttribute(hConsole, 6);
+                cout << "Gold";
+                SetConsoleTextAttribute(hConsole, 7);
+
+                cout << endl << endl << "  It means that you can enjoy of the VibroSound service and you can choose one" << endl;
+                cout << "  of the cafeteria combos that will be brought to your seat before the movie." << endl;
+            }
+            else if (seats[row][column].sale_type == 1) {
+                price = 10900;
+                cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in ";
+
+                SetConsoleTextAttribute(hConsole, 12);
+                cout << "VibroSound";
+                SetConsoleTextAttribute(hConsole, 7);
+
+                cout << endl << endl << "  It means that you can enjoy of the VibroSound service" << endl;
+                cout << "while you see the movie." << endl;
+            }
+            else {
+                price = 8700;
+                cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in General";
+                cout << endl << endl << "  It means that you can enjoy the movie on a normal seat." << endl;
+            }
+
+            if (is_3D) {
+                cout << endl << "  It costs $" << price << ", plus $3000 for the 3D show, for a total of $" << (price + 3000);
+                price += 3000;
+            }
+            else cout << endl << "  It costs $" << price << '.';
+
+            if (yes_no_question("You want to reserve that seat? (Enter 'Yes' or 'No')")) {
+                seats[row][column].is_empty = false;
+                cout << "  The magic goes here" << endl << endl << "  ";
+                system("pause");
+            }
+            else system("cls");
         }
     }
     save_show(shows_num);
