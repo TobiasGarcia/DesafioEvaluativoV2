@@ -283,8 +283,6 @@ void decode(string &text, unsigned long long int len, unsigned seed) {
     delete[] bin;
 }
 
-//Estas dos funciones solo son para debug. No estarán en la entrega final.
-
 bool code_file(string path_nat, string path_code, unsigned int seed) {
 
     string text;

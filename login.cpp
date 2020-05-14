@@ -2,6 +2,7 @@
 #include <iostream>
 #include "dialog.h"
 #include "code_decode.h"
+#include <fstream>
 
 //Estas son todas las implementaciones de las funciones que administrarán el inicio de sesión
 //tanto de los usuarios como del admin.
@@ -86,7 +87,7 @@ bool add_user(unsigned long long int id, string password, unsigned seed) {
         //Codificamos nuevamente el texto de text y lo guardamos en users.txt.
 
         code(text, len, seed);
-        save_text("users.txt", text, len);
+        save_text("../DesafioEvaluativoV2/data/users.txt", text, len);
 
         return true;
     }
@@ -185,7 +186,55 @@ bool register_user(unsigned long long int id, unsigned seed) {
     return add_user(id, password, seed);
 }
 
-bool login(unsigned int seed, bool &is_admin) {
+bool update_user(const unsigned long long int &user_id, const short int &hour, const short int &room,
+                 const short int &row, const short int &column, const short int &combo, const unsigned int &seed) {
+
+    string text, f_text, aux = "";
+    unsigned long long int len, index, end_index;
+    if (get_text("../DesafioEvaluativoV2/data/users.txt", text, len)) {
+
+        decode(text, len, seed);
+        search_id(text, len, user_id, index, end_index);
+
+        index = text.find('\r', end_index);
+        f_text = text.substr(index);
+        text = text.substr(0, index);
+
+        text.push_back(' ');
+
+        if (hour < 10) {
+            aux.push_back('0');
+            aux.push_back(char(hour + 48));
+        }
+        else aux.append(to_string(hour));
+
+        text.append(aux);
+        text.push_back('-');
+
+        text.push_back(char(room + 48));
+        text.push_back('-');
+
+        //Las columnas siempre son menores que 10
+
+        text.push_back(char(row + 48));
+        text.push_back(char(column + 48));
+        text.push_back('-');
+
+        text.push_back(char(combo + 48));
+        text.push_back(':');
+
+        len += 11;
+        text.append(f_text);
+
+        code(text, len, seed);
+        save_text("../DesafioEvaluativoV2/data/users.txt", text, len);
+
+        return true;
+    }
+    return false;
+}
+
+bool login(unsigned int seed, bool &is_admin,  unsigned long long int &user_id) {
 
     //Solicitamos al usuario una cédula para que pueda iniciar sesión en el sistema.
     //La variable seed es la semilla con la que se codificaron los archivos
@@ -205,12 +254,12 @@ bool login(unsigned int seed, bool &is_admin) {
     if (get_text("../DesafioEvaluativoV2/data/users.txt", text, len)) {
 
         if (len != 0) decode(text, len, seed);
-        unsigned long long int index = 0, end_index = 0, id;
+        unsigned long long int index = 0, end_index = 0;
 
         //Solicitamos al usuario su contraseña.
 
         cout << endl << "  Enter your ID for make a reservation: ";
-        if (!get_id_input(id, is_admin)) {
+        if (!get_id_input(user_id, is_admin)) {
             cout << endl << "  Sorry, the ID only can have numbers" << endl << endl;
             cout << "  "; system("pause");
             return false;
@@ -236,17 +285,17 @@ bool login(unsigned int seed, bool &is_admin) {
         //Si is_admin es false, pero se ingresó una cédula válida, procedemos
         //a buscar dicha cédula en el string text tomado de users.txt.
 
-        else if (!search_id(text, len, id, index, end_index)) {
+        else if (!search_id(text, len, user_id, index, end_index)) {
 
             //Si no la encontramos, es porque el usuario no se ha registrado aún,
             //por lo cual le preguntamos si se quiere registrar.
 
-            cout << endl << "  It looks that you don't have an account yet, do you want to create one?";
+            cout << endl << "  It looks that you don't have an account yet, do you want to create one?" << endl;
             if (yes_no_question("Enter 'Yes' for create an account, or 'No' not to create it:")) {
 
                 //En caso afirmativo llamamos a la función register_user().
 
-                register_user(id, seed);
+                register_user(user_id, seed);
                 cout << endl << "  Your account has been created successfully!" << endl << endl;
                 cout << "  "; system("pause");
                 return true;
@@ -262,6 +311,14 @@ bool login(unsigned int seed, bool &is_admin) {
 
             index = text.find(' ', index);
             end_index = text.find('\r', index);
+
+            if (text[end_index - 1] == ':') {
+                cout << endl << "  Sorry, this ID have an active reserve, if you want to make" << endl;
+                cout << "  an other reserve you have to enter other ID; cinema politics." << endl << endl;
+                cout << "  "; system("pause");
+                return false;
+            }
+
             real_password = text.substr((index + 1), (end_index - index - 1));
 
             fflush(stdin);

@@ -56,13 +56,15 @@ public:
 
     short int get_room() const {return room;}
 
-    void display_show(const short int &size1, const short int &size2);
+    short int get_empty_places() const {return empty_places;}
+
+    void display_show(const short int &size1, const short int &size2) const;
 
     bool get_index(short &index, bool is_row, const bool &is_admin, short int row = 0);
 
     void offer_seats(short int shows_num);
 
-    void reserve_seat(short int shows_num);
+    void reserve_seat(short shows_num, const unsigned long long int &user_id, const unsigned int &seed);
 };
 
 bool get_shows(vector<Show> &shows);
@@ -73,7 +75,7 @@ void add_show(vector<Show> &shows);
 
 void save_shows(const vector<Show> &shows);
 
-void display_shows(vector<Show> shows);
+void display_shows(const vector<Show> &shows);
 
 template <typename T>
 int ceiling(T num) {

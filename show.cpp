@@ -2,7 +2,9 @@
 #include <fstream>
 #include "dialog.h"
 #include <windows.h>
+#include "adminSession.h"
 #include <vector>
+#include "login.h"
 
 void Show::fill_row(string line, short row) {
 
@@ -318,7 +320,7 @@ void get_longest_size(const vector<Show> &shows, short int &size1, short int &si
     }
 }
 
-void Show::display_show(const short int &size1, const short int &size2) {
+void Show::display_show(const short int &size1, const short int &size2) const {
 
 
     //Pasamos de horario militar al convencional, AMIGBALES, no funciona con el -1.
@@ -335,6 +337,12 @@ void Show::display_show(const short int &size1, const short int &size2) {
     cout << char(186); centred_display(str_hour, 10);
     cout << char(186); centred_display(to_string(room), 6);
     cout << char(186);
+}
+
+void msg_and_cls(string msg) {
+    cout << "  " << msg << endl << endl << "  ";
+    system("pause");
+    system("cls");
 }
 
 bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int row) {
@@ -399,20 +407,14 @@ bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int 
         if ((ans == "") and yes_no_question("You want to return? (Enter 'Yes' or 'No')")) return false;
         else if (ans == "") system("cls");
         else if (is_row and ((1 < ans.length()) or (!is_in_range(ans[0], 65, 71) and !is_in_range(ans[0], 97, 103)))) {
-            cout << "  Sorry, the row must be a letter between A and G.";
-            cout << endl << endl << "  ";
-            system("pause");
-            system("cls");
+            msg_and_cls("Sorry, the row must be a letter between A and G.");
         }
         else if (ans == "10") {
             ask = false;
             index = 9;
         }
         else if (!is_row and ((1 < ans.length()) or !is_in_range(ans[0], 49, 57))) {//Es suficiente con 1 < len pues si fuera 0 habría saldio por la primera sentencia del if.
-            cout << "  Sorry, the column must be a number between 1 and 10.";
-            cout << endl << endl << "  ";
-            system("pause");
-            system("cls");
+            msg_and_cls("Sorry, the column must be a number between 1 and 10.");
         }
         else {
             ask = false;
@@ -426,35 +428,39 @@ bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int 
 
 void Show::offer_seats(short int shows_num) {
 
+    string msg;
     bool ask = true;
     short int row, column;
 
     while (ask and get_index(row, true, true) and get_index(column, false, true, row)) {
 
         if (!seats[row][column].is_empty) {
-            cout << endl << "  Sorry, the seat " << char(row + 65) << (column + 1) << " is sold, so we can't change the way it is offered" << endl << endl << "  ";
-            system("pause");
-            system("cls");
+            cout << endl;
+            msg = "Sorry, the seat ";
+            msg.push_back(char(row + 65));
+            msg.append(to_string(column + 1));
+            msg.append(" is sold, so we can't change the way it is offered");
+            msg_and_cls(msg);
         }
         else if (seats[row][column].sale_type == -1) {
-            cout << endl << "  Sorry, that is not a seat" << endl << endl << "  ";
-            system("pause");
-            system("cls");
+            cout << endl;
+            msg_and_cls("Sorry, that is not a seat");
         }
         else if (!seats[row][column].is_vibro) {
-            cout << endl << "  Sorry, the seat " << char(row + 65) << (column + 1) << " doesn't have VibroSound technology," << endl;
-            cout << "  so it can only be offerd in General" << endl << endl << "  ";
-            system("pause");
-            system("cls");
+            cout << endl;
+            msg = "Sorry, the seat ";
+            msg.push_back(char(row + 65));
+            msg.append(to_string(column + 1));
+            msg.append(" doesn't have VibroSound technology,\n  so it can only be offerd in General");
+            msg_and_cls(msg);
         }
         else {
             cout << endl << "  We can offer the seat " << char(row + 65) << (column + 1) << " in the modalities:" << endl;
             cout << "  1. General     2. VibroSound     3. Gold" << endl << "  ";
             //-1 para poder pasar a 0, 1 o 2.
             seats[row][column].sale_type = get_int_input("In which of them do you want to offer it? (1 - 3)", "\nSorry, we only have these 3 modalities:\n  1. General     2. VibroSound     3. Gold", 1, 3) - 1;
-            cout << endl << "  The offer has been successfully placed!" << endl << endl << "  ";
-            system("pause");
-            system("cls");
+            cout << endl;
+            msg_and_cls("The offer has been successfully placed!");
             display_seats(true);
             ask = yes_no_question("Do you want to offer other seat? (Enter 'Yes' for offer other seat or 'No' for exit)");
         }
@@ -462,58 +468,61 @@ void Show::offer_seats(short int shows_num) {
     save_show(shows_num);
 }
 
-void Show::reserve_seat(short shows_num) {
+short int explain_offer_types(const Seat &seat, const short int &row, const short int &column) {
+
+    short int price;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    if (seat.sale_type == 2) {
+        price = 19900;
+        cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in ";
+
+        SetConsoleTextAttribute(hConsole, 6);
+        cout << "Gold";
+        SetConsoleTextAttribute(hConsole, 7);
+
+        cout << endl << endl << "  It means that you can enjoy of the VibroSound service and you can choose one" << endl;
+        cout << "  of the cafeteria combos that will be brought to your seat before the movie." << endl;
+    }
+    else if (seat.sale_type == 1) {
+        price = 10900;
+        cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in ";
+
+        SetConsoleTextAttribute(hConsole, 12);
+        cout << "VibroSound";
+        SetConsoleTextAttribute(hConsole, 7);
+
+        cout << endl << endl << "  It means that you can enjoy of the VibroSound service" << endl;
+        cout << "  while you see the movie." << endl;
+    }
+    else {
+        price = 8700;
+        cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in General";
+        cout << endl << endl << "  It means that you can enjoy the movie on a normal seat." << endl;
+    }
+    return price;
+}
+
+void Show::reserve_seat(short shows_num, const unsigned long long int &user_id, const unsigned int &seed) {
 
     bool ask = true;
     unsigned int price;
-    short int row, column;
+    short int row, column, combo = 0;
 
     while (ask and get_index(row, true, false) and get_index(column, false, false, row)) {
 
         if (!seats[row][column].is_empty) {
-            cout << endl << "  Sorry, the seat " << char(row + 65) << (column + 1) << " is already reserved" << endl << endl << "  ";
-            system("pause");
-            system("cls");
+            msg_and_cls("Sorry, the seat " + to_string(char(row + 65)) + to_string(column + 1) + " is already reserved");
         }
         else if (seats[row][column].sale_type == -1) {
-            cout << endl << "  Sorry, that is not a seat" << endl << endl << "  ";
-            system("pause");
-            system("cls");
+            msg_and_cls("Sorry, that is not a seat");
         }
         else {
 
             system("cls");
             display_seats(false);
 
-            HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-
-            if (seats[row][column].sale_type == 2) {
-                price = 19900;
-                cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in ";
-
-                SetConsoleTextAttribute(hConsole, 6);
-                cout << "Gold";
-                SetConsoleTextAttribute(hConsole, 7);
-
-                cout << endl << endl << "  It means that you can enjoy of the VibroSound service and you can choose one" << endl;
-                cout << "  of the cafeteria combos that will be brought to your seat before the movie." << endl;
-            }
-            else if (seats[row][column].sale_type == 1) {
-                price = 10900;
-                cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in ";
-
-                SetConsoleTextAttribute(hConsole, 12);
-                cout << "VibroSound";
-                SetConsoleTextAttribute(hConsole, 7);
-
-                cout << endl << endl << "  It means that you can enjoy of the VibroSound service" << endl;
-                cout << "while you see the movie." << endl;
-            }
-            else {
-                price = 8700;
-                cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in General";
-                cout << endl << endl << "  It means that you can enjoy the movie on a normal seat." << endl;
-            }
+            price = explain_offer_types(seats[row][column], row, column);
 
             if (is_3D) {
                 cout << endl << "  It costs $" << price << ", plus $3000 for the 3D show, for a total of $" << (price + 3000);
@@ -522,9 +531,22 @@ void Show::reserve_seat(short shows_num) {
             else cout << endl << "  It costs $" << price << '.';
 
             if (yes_no_question("You want to reserve that seat? (Enter 'Yes' or 'No')")) {
-                seats[row][column].is_empty = false;
-                cout << "  The magic goes here" << endl << endl << "  ";
-                system("pause");
+                system("cls");
+                ask = false;
+                cout << endl << "  Reserve seat " << char(row + 65) << (column + 1) << " ----- $" << price << endl;
+                if (charge_money(price)) {
+                    seats[row][column].is_empty = false;
+                    empty_places--;
+                    system("cls");
+
+                    if (seats[row][column].sale_type == 2) combo = offer_combos();
+                    update_user(user_id, hour, room, row, column, combo, seed);
+                }
+                else {
+                    cout << endl << "  You canceled the reservation" << endl << endl << "  ";
+                    system("pause");
+                    return;
+                }
             }
             else system("cls");
         }
@@ -547,7 +569,7 @@ void display_labels(const short int &size1, const short int &size2) {
     cout << char(186);
 }
 
-void display_shows(vector<Show> shows) {
+void display_shows(const vector<Show> &shows) {
 
     short int len = shows.size(), size1, size2;
     get_longest_size(shows, size1, size2);

@@ -3,7 +3,6 @@
 #include "login.h"
 #include "show.h"
 #include "adminSession.h"
-#include "userSession.h"
 //#include "code_decode.h"
 
 using namespace std;
@@ -12,33 +11,31 @@ using namespace std;
 
 int main() {
 
+    //code_file("../DesafioEvaluativo/data/nat.txt", "../DesafioEvaluativo/data/sudo.txt", 12);
+
+//    La semilla de codificación por defecto es 12,
+//    pero puede ser cualquier otro entero positivo.
+
+    unsigned long long int user_id;
+    unsigned int code_seed = 12;
+    bool on = true, is_admin, logged;
+
     vector<Show> shows;
     get_shows(shows);
 
-    user_session(shows);
-
-    //code_file("../DesafioEvaluativo/data/nat.txt", "../DesafioEvaluativo/data/sudo.txt", 12);
-
-//    display_welcome();
-
-////    La semilla de codificación por defecto es 12,
-////    pero puede ser cualquier otro entero positivo.
-
-//    unsigned int code_seed = 12;
-//    bool on = true, is_admin, logged;
-
-//    while (on) {
-//        logged = login(code_seed, is_admin);
-//        if (logged and is_admin) {
-//            cout << endl << "  ADMIN LOGEUADO!" << endl << endl;
-//            cout << "  "; system("pause");
-//        }
-//        else if (logged) {
-//            cout << endl << "  USER LOGUEADO!" << endl << endl;
-//            cout << "  "; system("pause");
-//        }
-//        display_welcome();
-//    }
-
+    while (on) {
+        display_welcome(false);
+        logged = login(code_seed, is_admin, user_id);
+        if (logged and is_admin) {
+            system("cls");
+            admin_session(shows, code_seed, on);
+        }
+        else if (logged) {
+            system("cls");
+            user_session(shows, user_id, code_seed);
+        }
+    }
+    system("cls");
+    cout << endl << "             Good Bye!" << endl << endl;
     return 0;
 }

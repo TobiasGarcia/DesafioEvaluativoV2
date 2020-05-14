@@ -15,6 +15,9 @@ bool valid_password(string password);
 
 bool register_user(unsigned long long int id, unsigned seed);
 
-bool login(unsigned int seed, bool &is_admin);
+bool update_user(const unsigned long long int &user_id, const short int &hour, const short int &room,
+                 const short int &row, const short int &column, const short int &combo, const unsigned int &seed);
+
+bool login(unsigned int seed, bool &is_admin, unsigned long long int &user_id);
 
 #endif // LOGIN_H

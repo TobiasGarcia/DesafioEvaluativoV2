@@ -135,20 +135,9 @@ void display_welcome(bool is_admin) {
     else cout << endl << " WELCOME TO THE CINEMA!";
 }
 
-bool Qfile(char file_name[]) {
-    //Verifica que el archivo exista.
-    fstream file(file_name, ios::in);
-    if (file.is_open()) {
-        file.close();
-        return true;
-    }
-    else return false;
-}
-
-//Overloaded Funcion
 bool Qfile(string file_name) {
-
-    fstream file(file_name, ios::in);
+    //Verifica que el archivo exista.
+    fstream file("../DesafioEvaluativoV2/data/" + file_name, ios::in);
     if (file.is_open()) {
         file.close();
         return true;
@@ -159,18 +148,18 @@ bool Qfile(string file_name) {
 void get_files_names(string &source_file, string &output_file, bool code) {
 
     fflush(stdin);
-    cout << "Enter the file name to " << (code?"encode":"decode") <<" (without the " << (code?".txt":".dat") << "): "; getline(cin, source_file);
-    source_file += (code?".txt":".dat");
+    cout << endl << "  Enter the file name to " << (code?"encode":"decode") <<" (without the .txt): "; getline(cin, source_file);
+    source_file += ".txt";
     while (!Qfile(source_file)) {
-        cout << "Sorry, the file " << source_file << " could not be opened" << endl << endl;
+        cout << "  Sorry, the file " << source_file << " could not be opened" << endl << endl;
         fflush(stdin);
-        cout << "Enter the file name to " << (code?"encode":"decode") << " (without the " << (code?".txt":".dat") << "): "; getline(cin, source_file);
-        source_file += (code?".txt":".dat");
+        cout << "  Enter the file name to " << (code?"encode":"decode") << " (without the .txt): "; getline(cin, source_file);
+        source_file += ".txt";
     }
 
     fflush(stdin);
-    cout << "Enter the file name where " << (code?"encoding":"decoding") << " will go (without the " << (code?".dat":".txt") << "): "; getline(cin, output_file);
-    output_file += (code?".dat":".txt");
+    cout << "  Enter the file name where " << (code?"encoding":"decoding") << " will go (without the .txt): "; getline(cin, output_file);
+    output_file += ".txt";
 }
 
 short int get_seed() {
@@ -228,18 +217,28 @@ unsigned int display_practice_menu() {
 bool get_show_id(const vector<Show> &shows, short int &id, bool is_admin) {
 
     string msg;
+    bool ask = true;
     short int shows_num = shows.size();
 
     if (is_admin) msg = "Enter the ID of the show where you want to offer seats, or 0 for exit:";
     else msg = "Enter the ID of the show where you want to reserve a seat, or 0 for exit:";
 
-    display_shows(shows);
+    while (ask) {
 
-    //Le restamos -1 para pasar a indices del vector Shows.
+        display_shows(shows);
 
-    id = get_int_input(msg, "Sorry, the ID must be a number between 1 and " + to_string(shows_num), short(0), shows_num) - 1;
-    if (id == -1) return false;
-    else return true;
+        //Le restamos -1 para pasar a indices del vector Shows.
+
+        id = get_int_input(msg, "Sorry, the ID must be a number between 1 and " + to_string(shows_num), short(0), shows_num) - 1;
+        if (id == -1) return false;
+        else if (shows.at(id).get_empty_places() == 0) {
+            cout << endl << "  Sorry, this show is full" << endl;
+            ask = yes_no_question("Do you want to select other show? (Enter 'Yes' to select it, or 'No' to exit)");
+            system("cls");
+        }
+        else return true;
+    }
+    return false;
 }
 
 
