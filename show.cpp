@@ -394,6 +394,12 @@ bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int 
         SetConsoleTextAttribute(hConsole, 6);
         cout << "Yellow: Gold";
         SetConsoleTextAttribute(hConsole, 7);
+
+        if (!is_admin) {
+            cout << endl << endl << "  If you don't know what the General, VibroSound or Gold modalities consist of," << endl;
+            cout << "  choose a seat with the modality that interests you to know what it is.";
+        }
+
         cout << endl << endl << msg << endl;
 
         //Mostramos la fila si ya estamos en la columna.
@@ -503,7 +509,7 @@ short int explain_offer_types(const Seat &seat, const short int &row, const shor
     return price;
 }
 
-void Show::reserve_seat(short shows_num, const unsigned long long int &user_id, const unsigned int &seed) {
+void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned long long int &total, const unsigned long long int &user_id, const unsigned int &seed) {
 
     bool ask = true;
     unsigned int price;
@@ -537,10 +543,23 @@ void Show::reserve_seat(short shows_num, const unsigned long long int &user_id, 
                 if (charge_money(price)) {
                     seats[row][column].is_empty = false;
                     empty_places--;
+
+                    total += price;
+                    if (is_3D) sales.at(seats[row][column].sale_type)++;
+                    else sales.at(3 + seats[row][column].sale_type)++;
+
+                    save_sales(sales, total, seed);
+
                     system("cls");
 
-                    if (seats[row][column].sale_type == 2) combo = offer_combos();
+                    if (seats[row][column].sale_type == 2) {
+                        combo = offer_combos();
+                        system("cls");
+                    }
                     update_user(user_id, hour, room, row, column, combo, seed);
+
+                    cout << endl << "  Thank you for choosing us, we hope you enjoy your movie! :D" << endl << endl << "  ";
+                    system("pause");
                 }
                 else {
                     cout << endl << "  You canceled the reservation" << endl << endl << "  ";

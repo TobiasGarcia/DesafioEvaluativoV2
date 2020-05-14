@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <array>
 
 using namespace std;
 
@@ -64,7 +65,7 @@ public:
 
     void offer_seats(short int shows_num);
 
-    void reserve_seat(short shows_num, const unsigned long long int &user_id, const unsigned int &seed);
+    void reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned long long int &total, const unsigned long long int &user_id, const unsigned int &seed);
 };
 
 bool get_shows(vector<Show> &shows);

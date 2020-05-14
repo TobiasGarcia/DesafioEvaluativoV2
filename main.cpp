@@ -3,7 +3,8 @@
 #include "login.h"
 #include "show.h"
 #include "adminSession.h"
-//#include "code_decode.h"
+#include <array>
+#include "code_decode.h"
 
 using namespace std;
 
@@ -11,14 +12,20 @@ using namespace std;
 
 int main() {
 
-    //code_file("../DesafioEvaluativo/data/nat.txt", "../DesafioEvaluativo/data/sudo.txt", 12);
+
+
+    //code_file("../DesafioEvaluativoV2/data/nat.txt", "../DesafioEvaluativoV2/data/sales_record.txt", 12);
+    //decode_file("../DesafioEvaluativoV2/data/sales_record.txt", "../DesafioEvaluativoV2/data/nat.txt", 12);
 
 //    La semilla de codificación por defecto es 12,
 //    pero puede ser cualquier otro entero positivo.
 
-    unsigned long long int user_id;
     unsigned int code_seed = 12;
     bool on = true, is_admin, logged;
+    unsigned long long int user_id, total;
+
+    array<unsigned int, 6> sales;
+    get_sales_record(sales, total, 12);
 
     vector<Show> shows;
     get_shows(shows);
@@ -28,11 +35,11 @@ int main() {
         logged = login(code_seed, is_admin, user_id);
         if (logged and is_admin) {
             system("cls");
-            admin_session(shows, code_seed, on);
+            admin_session(shows, sales, total, code_seed, on);
         }
         else if (logged) {
             system("cls");
-            user_session(shows, user_id, code_seed);
+            user_session(shows, sales, total, user_id, code_seed);
         }
     }
     system("cls");
