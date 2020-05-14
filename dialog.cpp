@@ -11,7 +11,10 @@ using namespace std;
 //Nota: Hay 3 funciones plantilla en dialog.h que nos ayudan a hacer la validación,
 //is_in_range(), str2int() y get_int_input().
 
-//-------------------------------------------------------------FUNCIONES PARA VALIDACIÓN DE INPUTS
+
+//------------------------------------------------------------------------------------------------
+//---------------------------FUNCIONES PARA VALIDACIÓN DE INPUTS----------------------------------
+//------------------------------------------------------------------------------------------------
 
 string get_non_empty_line(string question, string warning) {
 
@@ -290,7 +293,10 @@ short int offer_combos() {
     return combo;
 }
 
-//-------------------------------------------------------------FUNCIONES PARA IMPRIMIR EN PANTALLA
+
+//------------------------------------------------------------------------------------------------
+//---------------------------FUNCIONES PARA IMPRIMIR EN PANTALLA----------------------------------
+//------------------------------------------------------------------------------------------------
 
 void msg_and_cls(string msg) {
 

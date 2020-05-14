@@ -29,7 +29,7 @@ int main() {
 
     while (on) {
 
-        display_welcome(false);
+        display_title(false);
         logged = login(code_seed, is_admin, user_id);
 
         if (logged and is_admin) {

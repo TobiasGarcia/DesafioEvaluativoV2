@@ -1,12 +1,60 @@
 #include "show.h"
+#include <vector>
 #include <fstream>
-#include "dialog.h"
 #include <windows.h>
 #include "session.h"
-#include <vector>
+#include "dialog.h"
 #include "login.h"
 
+//La clase Show está pensada para modelar las películas que serán ofrecidas en la cartelera del cine.
+
+
+//------------------------------------------------------------------------------------------
+//------------------------MÉTODOS PARA MANEJAR LOS ARCHIVOS TXT-----------------------------
+//------------------------------------------------------------------------------------------
+
 void Show::fill_row(string line, short row) {
+
+    //Recibe una fila de la matriz de asientos en su formato de string y la
+    //interpreta para llenar la matriz de asientos seats[][] con esa información.
+
+    //Recordemos que como se explica en el vídeo de Youtube, una fila en su forma de
+    //string puede verse como sigue:
+
+    //10 10 11 11 02 12 11 10 10 10
+
+    //Donde cada cada par de números representa un asiento. El primero indica si el
+    //asiento está vacío, mientras que el segundo indica en que modo se está ofreciendo
+    //el asiento al público, 0 para General, 1 para VibroSound y 2 para Gold.
+
+    //Dependiendo de la fila pueden haber espacios en blanco antes, pues la sala de cine
+    //entera en su forma de string se ve así:
+
+    //10 10 10 10 10 10 10 10 10 10
+    //10 10 10 10 00 00 00 10 10 10
+    //10 10 11 11 02 12 11 10 10 10
+    //10 10 01 02 02 02 02 11 10 10
+    //   10 10 11 02 12 11 10 10
+    //      10 10 10 00 00 10
+    //         10 10 10 10
+
+    //Por lo cual con los siguientes condicionales nos encargamos de filtrar la información
+    //para no tomar los espacios en blanco dependiendo de la fila.
+
+    //Además, como se mencionaba en la explicación del vídeo, los asientos que cuentan con
+    //la teconología VibroSound están úbicados en lugares en particular, por lo cual
+    //también los tenemos en cuenta dentro de los condicioneles para la fila.
+
+    //Los asientos con tecnología VibroSound, los ■ (el char(254)), son los siguientes:
+
+    //O O O O O O O O O O
+    //O O ■ ■ ■ ■ ■ ■ O O
+    //O O ■ ■ ■ ■ ■ ■ O O
+    //O O ■ ■ ■ ■ ■ ■ O O
+    //  O O ■ ■ ■ ■ O O
+    //    O O O O O O
+    //      O O O O
+
 
     if (row == 0) {
         for (short int j = 0; j < 10; j++) {
@@ -38,12 +86,70 @@ void Show::fill_row(string line, short row) {
 
 Show::Show(short int _id, bool &exists) {
 
+    //Este es el constructor de Show. Está sobrecargado para que cuando se invoque con estos
+    //dos argumentos, se cargue desde el archivo de nombre de showID.txt, donde ID es
+    //la identificación del show, que conincide con el índice en el que se encuentra almacenado
+    //dentro del vector de Shows que se menciona en le explicación dentro del vídeo de Youtube;
+    //a manera de ejemplo, el show de id 2 está almacenado en la posición 3 del vector de Shows
+    //y su información está almacenada en show2.txt. Estos archivos de texto se encuentran en
+    //una carpeta llamada shows dentro de la carpeta data que almacena todas las bases de datos
+    //del programa. La variable exists es colocada en true si el show fue cargado exitosamente
+    //desde su archivo de texto, o en false si el archivo correspondiente no pudo ser abierto.
+
     id = _id;
     fstream file("../DesafioEvaluativoV2/data/shows/show" + to_string(id) + ".txt", ios::in);
     if (file.is_open()) {
 
         exists = true;
         string line;
+
+        //Como se mencionaba en el vídeo, el formato en que se almacena la información dentro
+        //de los archivos es el siguiente:
+
+        //NOMBRE DE LA PELÍCULA
+        //1 (Si está en 3D) o 0 (en caso contrario)
+        //GÉNERO
+        //CLASIFICACIÓN (Sin el +, por ejemplo, +16 se almacena como 16)
+        //HORA DE LA FUNCIÓN (En formato de 24 horas)
+        //HORA DE FINALIZACIÓN (Ver nota)
+        //DURACIÓN (En minutos)
+        //SALA (Solo se cuentan con 4 salas, la 1, la 2, la 3 y la 4)
+        //CANTIDAD DE PUESTOS AÚN SIN RESERVAR
+        //MATRIZ DE ASIENTOS EN SU FORMATO DE STRING
+
+        //Nota: La hora de finalización se calcula como la hora en que comienza la película
+        //más la cantidad de horas que se tenga que reservar la sala para presentarla,
+        //por lo cual si la película dura dos horas y un minuto (ie 121 minutos),
+        //como dura más de las dos horas, se debe reservar la sala por 3,
+        //luego si la película es presentada a las 14, la hora de
+        //finalización será a las 17.
+
+        //Un ejemplo para ilustrar:
+        //Si tomamos la película 'Triple Frontera' que se presenta en el cuadro 1 de las
+        //instrucciones del examen, el archivo de texto se verá de la siguiente forma:
+
+        //Triple Frontera
+        //1
+        //Acción
+        //16
+        //19
+        //22
+        //125
+        //2
+        //28
+        //00 00 00 00 00 00 00 00 00 00
+        //10 00 00 10 00 00 00 10 00 00
+        //10 00 01 11 02 12 11 00 10 10
+        //10 10 01 02 02 02 02 01 10 10
+        //   10 10 11 02 12 11 10 10
+        //      10 10 10 00 00 10
+        //         10 10 10 10
+        //
+
+        //Nota: Como no se especificaba el 3D, lo coloqué como si sí lo fuera en este ejemplo.
+        //NOTA IMPORANTE: Simepre debe ir un salto de línea al final del archivo.
+
+        //En este orden de ideas, es fácil entender el resto de código de la método.
 
         getline(file, line); movie_name = line;
         getline(file, line); is_3D = (line == "1");
@@ -66,6 +172,10 @@ Show::Show(short int _id, bool &exists) {
 
 Show::Show(short int _id, string _movie_name, bool _is_3D, string _genre, short int _clasi, short int _hour, short int _finish_hour, short int _duration, short int _room, short int _empty_places) {
 
+    //Como mencionamos antes, el constructor está sobrecargar, por lo cual cuando se llama con estos
+    //argumentos el Show se construye de forma más sencilla y la matriz seats[][] se inicializa
+    //con la sala vacía y todos los asientos siendo ofrecidos en General.
+
     id =_id; movie_name = _movie_name; is_3D = _is_3D; genre = _genre; clasi = _clasi; hour = _hour;
     finish_hour = _finish_hour; duration = _duration; room = _room; empty_places = _empty_places;
 
@@ -77,9 +187,27 @@ Show::Show(short int _id, string _movie_name, bool _is_3D, string _genre, short 
 
 void Show::save_show(short int shows_num) const {
 
-    //No hace falta el exists porque si no está el archivo, lo crea.
+    //Guardamos la información de la película en su correspondiente archivo de text,
+    //recordemos que si por ejemplo la id de la película es 2, el archivo correspondiente
+    //es show2.txt.
 
-    //Guarda carácteres raros pero no son problema porque lee lo que debería leer.
+    //Notemos que no hace falta validar la existencia del archivo de texto, pues si éste
+    //fuese borrado, como es abierto con ios::out se crearía de nuevo.
+
+    //NOTA IMPORTANTE: Si se abre al archivo de texto con bloc de notas por ejemplo,
+    //en el lugar donde van los carácteres "raros", como la ñ (eñe) o las letras con tilde
+    //en caso de que el nombre de la película o el género los posea, se veran algunos símbolos
+    //extraños, pero esto no es de preocuparse pues solo es la interpretación que le da
+    //el bloc de notas al binario que se almacenó, pero cuando el archivo es abierto
+    //de nuevo con fstream los carácteres son leídos como eran originalmente, por lo cual
+    //no hay ningún problema en trabajar con tildes, con ñ (eñe) o carácteres de la tabla
+    //ASCII entre el 32 y el 254, inclusive; por carácteres diferentes a estos no puedo
+    //dar garantía de un buen funcionamiento.
+
+    //Otro aspecto relevante es que hay un archivo llamado shows_num.txt, que almacena una
+    //sola línea con el número de shows que se están ofreciendo actualmente en cartelera,
+    //esto es para saber cuantos shows hay de antemano y poder buscar exactamente todos
+    //los archivos que contengan la información de algún show, ni más, ni menos.
 
     fstream file("../DesafioEvaluativoV2/data/shows/shows_num.txt", ios::out);
     file << shows_num;
@@ -95,6 +223,8 @@ void Show::save_show(short int shows_num) const {
     file << to_string(duration) << '\n';
     file << to_string(room) << '\n';
     file << to_string(empty_places) << '\n';
+
+    //Esta parte es para guardar la matriz seats[][].
 
     string seat;
     short int j_min = 0, j_max = 10;
@@ -114,19 +244,78 @@ void Show::save_show(short int shows_num) const {
         }
         file << '\n';
     }
+
+    //NOTA IMPORANTE: Simepre debe ir un salto de línea al final del archivo
+    //como mecnionamos antes.
+
     file.close();
 }
 
-//Ahora vamos con la parte de imprimir la información del matriz seats
-//en pantalla.
+bool get_shows(vector<Show> &shows) {
+
+    //Cargamos todos los datos de los shows, desde los archivos de texto, en el vector Show.
+    //Retornamos true si los shows pudieron ser cargados exitosamente, o false en caso de que
+    //no se haya podído abrir el archivo shows_num.txt o alguno de los archivos con la
+    //información de alguna de las películas.
+
+    //Averiguamos la cantidad de shows que debemos cargar consultando el archivo shows_num.txt
+
+    bool exists;
+    string line;
+    short int shows_num;
+
+    fstream file("../DesafioEvaluativoV2/data/shows/shows_num.txt", ios::in);
+    if (file.is_open()) {
+
+        getline(file, line);
+        str2int(line, shows_num);
+
+        file.close();
+
+        //Esto se explica más a fondo en el vídeo, pero básicamente es para decirle al vector
+        //Shows que reserve espacio para almacenar una cantidad shows_num de películas.
+
+        shows.reserve(shows_num);
+
+        for (short int id = 0; id < shows_num; id++) {
+            Show show(id, exists);
+            if (exists) shows.push_back(show);
+            else {
+                cout << endl << "  Sorry, there is a '" << shows_num << "' in the shows_num.txt file," << endl;
+                cout << "  but there is no show" << id << ".txt file in the shows folder." << endl;
+                return false;
+            }
+        }
+        return true;
+    }
+    else {
+        cout << endl << "  Sorry, the shows_num.txt file could not be found." << endl;
+        return false;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+//-------------------------MÉTODOS PARA IMPRIMIR EN PANTALLA----------------------------------
+//--------------------------------------------------------------------------------------------
 
 void Show::display_row(short int row, const short int &aux, const bool &is_admin) const {
 
-    //Éste método imprime en pantalla la fila row de la matriz seats, aux es para
-    //identifiacar si hay que mostrar espacios antes de los asientos como sucede
-    //en las filas 4, 5 y 6. La variable is_admin es para saber si es el admin
-    //quien solicita ver la sala de cine, es para poder imprimir los asientos
-    //con tecnología VibroSound con los ■s.
+    //Imprime en pantalla la fila row de la matriz seat[][] con un color según
+    //lo forma en que estén siendo ofrecidos al público y forma dependiendo
+    //de si está vacío u ocupado.
+
+    //Colores: Blanco para General, rojo para VibroSound y amarillo para Gold.
+    //Formas: O para asiento vacío, X para asiento ocupado
+
+    //Si is_admin es true imprime los asientos que cuentan con la tecnología
+    //VibroSound con la forma ■ (el char(254)).
+
+    //Nota1: Para la elección de la forma la prevalencia es X < ■ < O, es decir,
+    //si un asiento está ocupado va con X, si no, si es VibroSound va con ■,
+    //o si no es ningúna de las anteriores va con O.
+
+    //Nota2: El color es independiente de la forma.
 
     for (short int j = aux; j < (10 - aux); j++) {
         cout << char(179) << ' ';
@@ -138,7 +327,11 @@ void Show::display_row(short int row, const short int &aux, const bool &is_admin
 
 void Show::display_seats(const bool &is_admin) const {
 
-    //Éste método imprime en pantalla la sala de la película.
+    //Imprime los asientos de la sala de cine donde se presentará
+    //la película correspondiente a show.
+
+    //No hace falta tratar de entender el código siguiente, sólo es una
+    //forma de mostrar los asientos en una forma que me pareció adecuada.
 
     short int aux = 0;
 
@@ -174,65 +367,61 @@ void Show::display_seats(const bool &is_admin) const {
     cout << endl;
 }
 
-bool get_shows(vector<Show> &shows) {
+void get_longest_size(const vector<Show> &shows, short int &max_size_name, short int &max_size_genre) {
 
-    fstream file("../DesafioEvaluativoV2/data/shows/shows_num.txt", ios::in);
-    if (file.is_open()) {
+    //Para poder imprimir la cartelera de películas en pantalla con un formato que
+    //me pareciera correcto, decidí implementar una función que determinara la
+    //mayor de las longitudes de los nombres de las películas y de los géneros,
+    //para poder utilizarlos para imprimer el marco de la cartelera con un tamaño
+    //suficientemente grande para contenerlos.
 
-        bool exists;
-        string line;
-        short int shows_num;
+    //Se incilializan en 4 y 5 porque mínimamente deben contener la etiqueta de
+    //'Name' y el de 'Genre' respectivamente.
 
-        getline(file, line);
-        str2int(line, shows_num);
+    max_size_name = 4;
+    max_size_genre = 5;
 
-        file.close();
-
-        shows.reserve(shows_num);
-        for (short int id = 0; id < shows_num; id++) {
-            Show show(id, exists);
-            if (exists) shows.push_back(show);
-            else {
-                cout << endl << "  Sorry, there is a '" << shows_num << "' in the shows_num.txt file," << endl;
-                cout << "  but there is no show" << id << ".txt file in the shows folder." << endl;
-                return false;
-            }
-        }
-        return true;
-    }
-    else {
-        cout << endl << "  Sorry, the shows_num.txt file could not be found." << endl;
-        return false;
-    }
-}
-
-void get_longest_size(const vector<Show> &shows, short int &size1, short int &size2) {
-
-    //Es muy especifica para éste problema como tal.
-    //Devuelve en size1 la longitd del mayor nombre, en size2
-    //la del mayor genero.
-
-    //Porque mínimo es el de 'Name' y el de 'Genre'.
-
-    size1 = 4;
-    size2 = 5;
     short int len = shows.size();
     for (short int i = 0; i < len; i++) {
-        if (size1 < short(shows.at(i).get_movie_name().length())) size1 = short(shows.at(i).get_movie_name().length());
-        if (size2 < short(shows.at(i).get_genre().length())) size2 = short(shows.at(i).get_genre().length());
+        if (max_size_name < short(shows.at(i).get_movie_name().length())) max_size_name = short(shows.at(i).get_movie_name().length());
+        if (max_size_genre < short(shows.at(i).get_genre().length())) max_size_genre = short(shows.at(i).get_genre().length());
     }
 }
 
-void Show::display_show(const short int &size1, const short int &size2) const {
+void display_labels(const short int &max_size_name, const short int &max_size_genre) {
 
+    //Imprimimos en pantalla las etiquetas de las columnas de la cartelera,
+    //etiquetas como 'Name', 'Genre', '3D, etc.
 
-    //Pasamos de horario militar al convencional, AMIGBALES, no funciona con el -1.
+    display_adapter_separator(201, 203, 187, max_size_name, max_size_genre); cout << endl;
+    cout << "   " << char(186); centred_display("ID", 4);
+    cout << char(186); centred_display("Name", max_size_name);
+    cout << char(186); centred_display("Genre", max_size_genre);
+    cout << char(186); centred_display("3D", 6);
+    cout << char(186); centred_display("Duration", 10);
+    cout << char(186); centred_display("Class.", 8);
+    cout << char(186); centred_display("Seats", 7);
+    cout << char(186); centred_display("Hour", 10);
+    cout << char(186); centred_display("Room", 6);
+    cout << char(186);
+}
+
+void Show::display_show(const short int &max_size_name, const short int &max_size_genre) const {
+
+    //Imprime en pantalla la información de uno de los shows.
+
+    //Pasamos de horario militar al convencional para ser amigables con el
+    //usuario. La fórmula para pasar de horario militar al convencional
+    //es: convencional = 1 + (militar - 1)%12, a excepción del 0,
+    //por lo cual manejamos este caso particular mediante el uso
+    //del operador ternario.
+
     string str_hour = (hour == 0)?"12":to_string(1 + (hour-1)%12);
     str_hour += (hour < 12)?":00 am":":00 pm";
 
     cout << "   " << char(186); centred_display(to_string(id + 1), 4);
-    cout << char(186); centred_display(movie_name, size1);
-    cout << char(186); centred_display(genre, size2);
+    cout << char(186); centred_display(movie_name, max_size_name);
+    cout << char(186); centred_display(genre, max_size_genre);
     cout << char(186); centred_display(is_3D?"Yes":"No", 6);
     cout << char(186); centred_display(to_string(duration) + " mins", 10);
     cout << char(186); centred_display(to_string(clasi) + "+", 8);
@@ -242,7 +431,47 @@ void Show::display_show(const short int &size1, const short int &size2) const {
     cout << char(186);
 }
 
+void display_shows(const vector<Show> &shows) {
+
+    //Imprime la cartelera de películas del vector Shows.
+
+    short int len = shows.size(), max_size_name, max_size_genre;
+    get_longest_size(shows, max_size_name, max_size_genre);
+
+    //Sumamos 2 simplementa para que cuando se muestre el nombre de mayor longitud
+    //y el género de mayor longitud, display_adapter_separator() coloque dos espacios
+    //vacíos en los extremos, es solo cuestión de visualización.
+
+    max_size_name += 2;
+    max_size_genre += 2;
+
+    cout << endl;
+    display_labels(max_size_name, max_size_genre);
+    cout << endl;
+
+    for (short int i = 0; i < len; i++) {
+        display_adapter_separator(204, 206, 185, max_size_name, max_size_genre); cout << endl;
+        shows.at(i).display_show(max_size_name, max_size_genre); cout << endl;
+    }
+
+    display_adapter_separator(200, 202, 188, max_size_name, max_size_genre); cout << endl;
+}
+
+
+//--------------------------------------------------------------------------------------------
+//-----------MÉTODOS PARA ADMINISTRAR LOS PROCESOS DE RESERVA Y OFERTA DE ASIENTOS------------
+//--------------------------------------------------------------------------------------------
+
 bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int row) {
+
+    //Imprime en pantalla la sala de cine donde se presentará la película. Solicita al
+    //usuario el índice de una fila o una columna dependiendo de si is_row es true o
+    //false resepectivamente. La variable row es para el caso en que se solicita la
+    //columna mostrarle al usuario cual fila había escogido. Si es el administrador
+    //quien invoca el método (ie is_admin = true), simplemetne cambiamos los menajes
+    //que se muestran al usuario. Retornamos true si el usuario ingresa una fila o
+    //columna valida y la almacenamos en la variable index recibida por referencia;
+    //o false en caso de que el usuario decida escoger otra película.
 
     bool ask = true;
     string ans, msg;
@@ -251,20 +480,6 @@ bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int 
     else msg = "  Which seat do you want to reserve?";
 
     system("cls");
-
-    //Delgados
-    //218 196 194 196 191
-    //179     179     179
-    //195 196 197 196 180
-    //179     179     179
-    //192 196 193 196 217
-
-    //Gruesos
-    //201 205 203 205 187
-    //186     186     186
-    //204 196 206 196 185
-    //186     186     186
-    //200 205 202 205 188
 
     while (ask) {
 
@@ -299,13 +514,15 @@ bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int 
 
         cout << endl << endl << msg << endl;
 
-        //Mostramos la fila si ya estamos en la columna.
+        //Mostramos la fila escogida si ya estamos escogiendo la columna, para facilidad del usuario.
 
         if (!is_row) cout << endl << "  CURRENT ROW: " << char(row + 65) << endl;
 
         cout << "  Enter the " << (is_row?"row":"column") << " of the seat, or an empty space for return: (" << (is_row?'A':'1') << " - " << (is_row?"G":"10") << ") ";
         fflush(stdin);
         getline(cin, ans);
+
+        //Todo esto son sólo condicionales para procesar lo que ingresó el usuario
 
         if ((ans == "") and yes_no_question("You want to return? (Enter 'Yes' or 'No')")) return false;
         else if (ans == "") system("cls");
@@ -316,26 +533,59 @@ bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int 
             ask = false;
             index = 9;
         }
-        else if (!is_row and ((1 < ans.length()) or !is_in_range(ans[0], 49, 57))) {//Es suficiente con 1 < len pues si fuera 0 habría saldio por la primera sentencia del if.
+        else if (!is_row and ((1 < ans.length()) or !is_in_range(ans[0], 49, 57))) {
             msg_and_cls("Sorry, the column must be a number between 1 and 10.");
         }
         else {
             ask = false;
-            if (is_row and (ans[0] < 72)) index = short(ans[0]) - 65; //Mayúscula.
-            else if (is_row) index = short(ans[0]) - 97; //Minúscula.
-            else index = short(ans[0]) - 49; //Número de la columna.
+
+            //Para comodidad del usuario hacemos que el método no sea case sensitive,
+            //es decir, si ingresa 'A' o 'a' para las filas reconocemos que se refería
+            //a la fila 0 de la matriz seats[][].
+
+            if (is_row and (ans[0] < 72)) index = short(ans[0]) - 65; //Letra a índice - Mayúscula.
+            else if (is_row) index = short(ans[0]) - 97; //Letra a índice - Minúscula.
+            else index = short(ans[0]) - 49; //Entero positivo a índice - Número de la columna.
         }
+    }
+    return true;
+}
+
+bool is_room_available(const vector<Show> &shows, const short int &room, const short int &hour, short int finish_hour, short int &show_hour, short int &show_finish_hour) {
+
+    //Cuando el admin programa una nueva película, debemos tener en cuenta de que la sala en que
+    //se va a proyectar la película esté disponible en el horario ingresado, tanto que no esté
+    //siendo proyectada otra pelicula como que no vaya a comenzar a ser proyectada durrante
+    //la que se está programando. Está función retorna true si la sala está disponible en
+    //el horario ingresado por el admin o false en caso contrario.
+
+    short int len = shows.size();
+    for (short int i = 0; i < len; i++) {
+
+        show_hour = shows.at(i).get_hour();
+        show_finish_hour = shows.at(i).get_finish_hour();
+
+        if ((shows.at(i).get_room() == room) and ((hour < show_finish_hour) and (show_hour < finish_hour))) return false;
     }
     return true;
 }
 
 void Show::modify_offers(short int shows_num) {
 
+    //Esta método administra el resto del proceso para que el admin pueda modificar
+    //la forma en que se ofrencen las sillas dentro de las salas, luego de que ya
+    //haya escogido cuál función va a modificar.
+
     string msg;
     bool ask = true;
     short int row, column;
 
+    //Solicitamos la fila y la columna del asiento de la matriz seats[][],
+    //al cual el admin le desea cambiar el tipo de modo en que se ofrece.
+
     while (ask and get_index(row, true, true) and get_index(column, false, true, row)) {
+
+        //Estos sólo son condicionales para procesar lo que el admin ingresó.
 
         if (!seats[row][column].is_empty) {
             cout << endl;
@@ -360,10 +610,17 @@ void Show::modify_offers(short int shows_num) {
         else {
             cout << endl << "  We can offer the seat " << char(row + 65) << (column + 1) << " in the modalities:" << endl;
             cout << "  1. General     2. VibroSound     3. Gold" << endl << "  ";
-            //-1 para poder pasar a 0, 1 o 2.
+
+            //El restamos uno al retorno de la función get_int_input() para poder pasar
+            //de un entero positvo a uno de los índices de la matriz.
+
             seats[row][column].sale_type = get_int_input("In which of them do you want to offer it? (1 - 3)", "\nSorry, we only have these 3 modalities:\n  1. General     2. VibroSound     3. Gold", 1, 3) - 1;
             cout << endl;
+
             msg_and_cls("The offer has been successfully placed!");
+
+            //Le preguntamos al admin si desea modificar la forma en que se oferta otro asiento.
+
             display_seats(true);
             ask = yes_no_question("Do you want to offer other seat? (Enter 'Yes' for offer other seat or 'No' for exit)");
         }
@@ -373,12 +630,20 @@ void Show::modify_offers(short int shows_num) {
 
 void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned long long int &total, const unsigned long long int &user_id, const unsigned int &seed) {
 
+    //Esta método administra el resto del proceso para que el usuario del cine pueda
+    //reservar un asiento luego de que ya haya escogido la función de su interés.
+
     string msg;
     bool ask = true;
     unsigned int price;
     short int row, column, combo = 0;
 
+    //Solicitamos la fila y la columna del asiento de la matriz seats[][],
+    //que el usuario desea reservar.
+
     while (ask and get_index(row, true, false) and get_index(column, false, false, row)) {
+
+        //Procesamos lo que ingresó el usuario.
 
         if (!seats[row][column].is_empty) {
             msg = "Sorry, the seat ";
@@ -393,7 +658,14 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
             system("cls");
             display_seats(false);
 
+            //En caso de que escoja un asiento válido, es decir, que esté desocupado
+            //y sea un asiento de verdad, no como por ejemplo los de las esquinas
+            //de la matriz seats[][], procedemos a explicarle en qué consite y
+            //cuanto cuesta el tipo de asiento que escogió.
+
             price = explain_offer_types(seats[row][column], row, column);
+
+            //Aumentamos la tarifa en $3000 en caso de que sea 3D.
 
             if (is_3D) {
                 cout << endl << "  It costs $" << price << ", plus $3000 for the 3D show, for a total of $" << (price + 3000);
@@ -401,29 +673,57 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
             }
             else cout << endl << "  It costs $" << price << '.';
 
+            //Confirmamos la reservar del asiento.
+
             if (yes_no_question("You want to reserve that seat? (Enter 'Yes' or 'No')")) {
 
                 system("cls");
                 ask = false;
                 cout << endl << "  Reserve seat " << char(row + 65) << (column + 1) << " ----- $" << price << endl;
 
+                //Le solicitamos que ingrese el dinero.
+
                 if (charge_money(price)) {
+
+                    //Y si llegamos a esta parte del código, es porque el usuario decidió
+                    //reservar el asiento.
+
+                    //Actualizamos la matriz seats[][] y reducimos los asientos disponibles
+                    //de la función.
+
                     seats[row][column].is_empty = false;
                     empty_places--;
+
+                    //Agregamos el precio de la compra al total de ventas diarias, y registramos
+                    //en que modalidad se reservó el asiento para poder discriminar las ventas
+                    //por estos tipos, dentro del registro de ventas. Actualizamos el archivo
+                    //de texto del registro ventas.
 
                     total += price;
                     if (is_3D) sales.at(seats[row][column].sale_type)++;
                     else sales.at(3 + seats[row][column].sale_type)++;
-
                     save_sales(sales, total, seed);
 
                     system("cls");
 
                     if (seats[row][column].sale_type == 2) {
+
+                        //Y en el caso de que haya escogido un asiento tipo Gold,
+                        //le preguntamos cuál combo desea llevar como se explicó
+                        //en el vídeo de Youtube.
+
                         combo = offer_combos();
                         system("cls");
                     }
+
+                    //Actualizamos la información de la cuenta del usuario dentro del archivo
+                    //users.txt, con la hora, la sala, el asiento y si llevó un combo almacenamos
+                    //cual combo fue, o 0 en caso contrario.
+
                     update_user(user_id, hour, room, row, column, combo, seed);
+
+                    //Imprimimos un mensaje de agradecimiento y volvemos al inicio para que otro
+                    //usuario pueda reservar.
 
                     cout << endl << "  Thank you for choosing us, we hope you enjoy your movie! :D" << endl << endl << "  ";
                     system("pause");
@@ -440,74 +740,3 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
     }
     save_show(shows_num);
 }
-
-void display_labels(const short int &size1, const short int &size2) {
-
-    display_adapter_separator(201, 203, 187, size1, size2); cout << endl;
-    cout << "   " << char(186); centred_display("ID", 4);
-    cout << char(186); centred_display("Name", size1);
-    cout << char(186); centred_display("Genre", size2);
-    cout << char(186); centred_display("3D", 6);
-    cout << char(186); centred_display("Duration", 10);
-    cout << char(186); centred_display("Class.", 8);
-    cout << char(186); centred_display("Seats", 7);
-    cout << char(186); centred_display("Hour", 10);
-    cout << char(186); centred_display("Room", 6);
-    cout << char(186);
-}
-
-void display_shows(const vector<Show> &shows) {
-
-    short int len = shows.size(), size1, size2;
-    get_longest_size(shows, size1, size2);
-    size1 += 2;//Añadimos los espacios vacios de los extremos.
-    size2 += 2;
-
-    cout << endl;
-    display_labels(size1, size2);
-    cout << endl;
-
-    for (short int i = 0; i < len; i++) {
-        display_adapter_separator(204, 206, 185, size1, size2); cout << endl;
-        shows.at(i).display_show(size1, size2); cout << endl;
-    }
-
-    display_adapter_separator(200, 202, 188, size1, size2); cout << endl;
-}
-
-bool is_room_available(const vector<Show> &shows, const short int &room, const short int &hour, short int finish_hour, short int &show_hour, short int &show_finish_hour) {
-
-    short int len = shows.size();
-    for (short int i = 0; i < len; i++) {
-        show_hour = shows.at(i).get_hour();
-        show_finish_hour = shows.at(i).get_finish_hour();
-        if ((shows.at(i).get_room() == room) and ((hour < show_finish_hour) and (show_hour < finish_hour))) return false;
-    }
-    return true;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

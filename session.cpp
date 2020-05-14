@@ -36,7 +36,7 @@ void admin_session(vector<Show> &shows, array<unsigned int, 6> &sales, unsigned 
         }
         else if (opt == 2) {
             system("cls");
-            if (get_show_id(shows, id, true)) shows.at(id).modify_offers(shows.size());
+            while (get_show_id(shows, id, true)) shows.at(id).modify_offers(shows.size());
         }
         else if (opt == 3) display_sales(sales, total);
         else if ((opt == 4) and login_admin(code_seed)) reset_sales_record(sales, total, code_seed);
@@ -65,7 +65,7 @@ void user_session(vector<Show> &shows, array<unsigned int, 6> &sales, unsigned l
     //Ramificar en las librearias
 
     short int id;
-    if (get_show_id(shows, id, false)) shows.at(id).reserve_seat(shows.size(), sales, total, user_id, seed);
+    while (get_show_id(shows, id, false)) shows.at(id).reserve_seat(shows.size(), sales, total, user_id, seed);
 }
 
 //Para mostrar variedad en el manejo de los contenedores
@@ -195,7 +195,7 @@ void add_show(vector<Show> &shows) {
     clasi = get_int_input("Enter the classification of the movie:", "Sorry, the classification must be a number.", 0);
     hour = get_int_input("At what time will the movie be shown? (In 24 hours format)", "Sorry, the hour must be a number between 0 and 23.", 0, 23);
     duration = get_int_input("Enter the duration of the movie: (In minutes)", "Sorry, the duration must be a number.", 1);
-    finish_hour = hour + ceiling(float(duration)/60.0f);
+    finish_hour = (hour + ceiling(float(duration)/60.0f))%24;
     room = get_int_input("In which of the four rooms will the movie be shown? (Enter the room number)", "Sorry, the room number must be a number between 1 and 4.", 1, 4);
 
     while (ask and !is_room_available(shows, room, hour, finish_hour, show_hour, show_finish_hour)) {

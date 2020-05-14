@@ -6,6 +6,7 @@
 
 using namespace std;
 
+
 //-------------------------------------------------------------FUNCIONES PARA VALIDACIÓN DE INPUTS
 
 string get_non_empty_line(string question, string warning = "  Sorry, it can't be an empty space.");
@@ -23,6 +24,7 @@ bool get_show_id(const vector<Show> &shows, short int &id, bool is_admin);
 bool charge_money(unsigned int price);
 
 short int offer_combos();
+
 
 //-------------------------------------------------------------FUNCIONES PARA IMPRIMIR EN PANTALLA
 
@@ -43,6 +45,9 @@ void display_separator(short int size, short int chr1, short int chr2, short int
 void colored_display(const Seat &seat, const bool &is_admin);
 
 void display_wall(short int left, short int walls, short int right);
+
+
+//-----------------------------------------------------------------------------FUNCIONES PLANTILLA
 
 //Retorna true si el número int está entre min y max, inclusive.
 template <typename T>
