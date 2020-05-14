@@ -1,4 +1,4 @@
-#include "adminSession.h"
+#include "session.h"
 #include "code_decode.h"
 #include "dialog.h"
 #include "login.h"
@@ -7,25 +7,26 @@
 #include <fstream>
 
 void display_admin_menu() {
-    display_welcome(true);
+    display_title(true);
     cout << endl << endl << "  What you want to do?" << endl;
     cout << endl << "  1. Schedule new show" << endl;
     cout << "  2. Offer seats at scheduled shows" << endl;
     cout << "  3. Make sales report of today" << endl;
-    cout << "  4. Encode file" << endl;
-    cout << "  5. Decode file" << endl;
-    cout << "  6. Turn off the application" << endl;
-    cout << "  7. Exit" << endl;
+    cout << "  4. Reset sales record" << endl;
+    cout << "  5. Encode file" << endl;
+    cout << "  6. Decode file" << endl;
+    cout << "  7. Turn off the application" << endl;
+    cout << "  8. Exit" << endl;
 }
 
-void admin_session(vector<Show> &shows, const array<unsigned int, 6> &sales, const unsigned long long int total, const unsigned int &code_seed, bool &on) {
+void admin_session(vector<Show> &shows, array<unsigned int, 6> &sales, unsigned long long int &total, const unsigned int &code_seed, bool &on) {
 
     short int opt = 1, id;
 
-    while (opt != 7) {
+    while (opt != 8) {
 
         display_admin_menu();
-        opt = get_int_input("What you want to do?", "Sorry, that is not a valid option", short(1), short(7));
+        opt = get_int_input("What you want to do?", "Sorry, that is not a valid option", short(1), short(8));
 
         //Siempre he preferido el if en lugar de switch.
 
@@ -35,100 +36,36 @@ void admin_session(vector<Show> &shows, const array<unsigned int, 6> &sales, con
         }
         else if (opt == 2) {
             system("cls");
-            if (get_show_id(shows, id, true)) shows.at(id).offer_seats(shows.size());
+            if (get_show_id(shows, id, true)) shows.at(id).modify_offers(shows.size());
         }
-        else if (opt == 3) {
-            display_sales(sales, total);
-        }
-        else if ((opt == 4) and login_admin(code_seed)) {
+        else if (opt == 3) display_sales(sales, total);
+        else if ((opt == 4) and login_admin(code_seed)) reset_sales_record(sales, total, code_seed);
+        else if ((opt == 5) and login_admin(code_seed)) {
             system("cls");
             string file_nat, file_code;
             get_files_names(file_nat, file_code, true);
             code_file("../DesafioEvaluativoV2/data/" + file_nat, "../DesafioEvaluativoV2/data/" + file_code, code_seed);
         }
-        else if ((opt == 5)  and login_admin(code_seed)) {
+        else if ((opt == 6)  and login_admin(code_seed)) {
             system("cls");
             string file_nat, file_code;
             get_files_names(file_code, file_nat, false);
             decode_file("../DesafioEvaluativoV2/data/" + file_code, "../DesafioEvaluativoV2/data/" + file_nat, code_seed);
         }
-        else if (opt == 6) {
+        else if (opt == 7) {
             on = false;
-            opt = 7;
+            opt = 8;
         }
     }
-}
-
-short int offer_combos() {
-
-    short int combo;
-    cout << endl <<  "  You reserved one Gold seat, so you can choose one of these combos*" << endl;
-    cout << "  and it will be brought to your seat before the movie: " << endl << endl;
-    cout << "  1. Large popcorn with medium soda or tea" << endl;
-    cout << "  2. Hot dog with medium soda or tea" << endl;
-    cout << "  3. Nachos with guacamole and sour cream" << endl;
-    cout << "  4. Super burger with small soda" << endl;
-    cout << endl << "  *All offers are subject to change and availability" << endl;
-    combo = get_int_input("Which one will you take? (1 - 4)", "Sorry, only can be one of these four combos", 1, 4);
-    cout << endl << "  You choose the combo " << combo << '!' << endl << endl << "  ";
-    system("pause");
-    return combo;
-}
-
-bool charge_money(unsigned int price) {
-
-    string ans;
-    bool ask = true;
-    unsigned int money, num_bills, bills[] = {50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50};
-
-    while (ask) {
-        cout << endl << "  Enter the money please: (or 0 for cancel the reserve) ";
-        fflush(stdin);
-        getline(cin, ans);
-
-        if (!str2int(ans, money)) cout << "  Sorry, you only can enter numbers" << endl;
-        else if (money == 0) return false;
-        else if (money < price) cout << "  Sorry, you must enter a minimum amount of $" << price << endl;
-        else ask = false;
-    }
-
-    system("cls");
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    SetConsoleTextAttribute(hConsole, 6);
-    cout << endl << "  Your reservation has been successful!" << endl;
-    SetConsoleTextAttribute(hConsole, 7);
-
-    money -= price;
-    if (money >= 50) {
-        cout << endl << "  Here is your change: $" << money << endl << endl;
-        for (short int i = 0; i < 10; i++) {
-
-            num_bills = unsigned(int(money/bills[i]));
-            money %= bills[i];
-
-            if ((num_bills != 0) and (i < 5)) cout << "  " << num_bills << ((num_bills>1)?" bills":" bill") << " of $" << bills[i] << endl;
-            else if (num_bills != 0) cout << "  " << num_bills << ((num_bills>1)?" coins":" coin") << " of $" << bills[i] << endl;
-        }
-    }
-
-    if (money != 0) {
-        cout << endl << "  Sorry, but there is a remainder of $" << money << " that we can't" << endl;
-        cout << "  give you because the smallest coin is $50" << endl;
-    }
-    cout << endl << "  ";
-    system("pause");
-    return true;
 }
 
 void user_session(vector<Show> &shows, array<unsigned int, 6> &sales, unsigned long long int &total, const unsigned long long int &user_id, const unsigned int &seed) {
 
     //Esta función es muy pequeña pero es para no sobrecargar mucho el main y mantenerlo ordenado.
+    //Ramificar en las librearias
 
     short int id;
-    if (get_show_id(shows, id, false)) {
-        shows.at(id).reserve_seat(shows.size(), sales, total, user_id, seed);
-    }
+    if (get_show_id(shows, id, false)) shows.at(id).reserve_seat(shows.size(), sales, total, user_id, seed);
 }
 
 //Para mostrar variedad en el manejo de los contenedores
@@ -240,7 +177,50 @@ void display_sales(const array<unsigned int, 6> &sales, const unsigned long long
     system("pause");
 }
 
+void add_show(vector<Show> &shows) {
 
+    bool is_3D, ask = true;
+    string movie_name, genre, ans;
+    short int clasi, hour, finish_hour, duration, room, show_hour, show_finish_hour;
+
+    display_shows(shows);
+
+    movie_name = get_non_empty_line("Enter the name of the movie:");
+    is_3D = yes_no_question("The movie is in 3D? (Enter 'Yes' if it is, or 'No' otherwise)");
+    genre = get_non_empty_line("Enter the genre of the movie:");
+
+    //Técnicamente en todos las warnings siguintes debería decir '...must be a positive integer...', pero
+    //considero que eso no sería amigable con el usuario, por lo cual lo dejamos en '...must be a number...'.
+
+    clasi = get_int_input("Enter the classification of the movie:", "Sorry, the classification must be a number.", 0);
+    hour = get_int_input("At what time will the movie be shown? (In 24 hours format)", "Sorry, the hour must be a number between 0 and 23.", 0, 23);
+    duration = get_int_input("Enter the duration of the movie: (In minutes)", "Sorry, the duration must be a number.", 1);
+    finish_hour = hour + ceiling(float(duration)/60.0f);
+    room = get_int_input("In which of the four rooms will the movie be shown? (Enter the room number)", "Sorry, the room number must be a number between 1 and 4.", 1, 4);
+
+    while (ask and !is_room_available(shows, room, hour, finish_hour, show_hour, show_finish_hour)) {
+        system("cls");
+        display_shows(shows);
+        cout << endl << "  Sorry, room " << room << " is reserved from " << show_hour << ":00 to " << show_finish_hour << ":00, and you need to reserved" << endl;
+        cout << "  the room " << finish_hour - hour << " hour(s), because your movie lasts " << duration << " minutes." << endl << endl;
+        cout << "  Do you want to change the room or the hour?";
+        ask = yes_no_question("Enter 'Yes' for change they, or 'No' for cancel the show)");
+
+        if (ask) {
+
+            system("cls");
+            display_shows(shows);
+            hour = get_int_input("At what time will the movie be shown? (In 24 hours format)", "Sorry, the hour must be a number between 0 and 23.", 0, 23);
+            finish_hour = hour + ceiling(float(duration)/60.0f);
+            room = get_int_input("In which of the four rooms will the movie be shown? (Enter the room number)", "Sorry, the room number must be a number between 1 and 4.", 1, 4);
+        }
+    }
+
+    if (ask) {
+        Show show(shows.size(), movie_name, is_3D, genre, clasi, hour, finish_hour, duration, room, 58);
+        shows.push_back(show);
+    }
+}
 
 
 

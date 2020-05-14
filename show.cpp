@@ -2,7 +2,7 @@
 #include <fstream>
 #include "dialog.h"
 #include <windows.h>
-#include "adminSession.h"
+#include "session.h"
 #include <vector>
 #include "login.h"
 
@@ -120,60 +120,6 @@ void Show::save_show(short int shows_num) const {
 //Ahora vamos con la parte de imprimir la información del matriz seats
 //en pantalla.
 
-void display_wall(short int left, short int walls, short int right) {
-
-    //Esto es solo para imprimir una pared del cine, left determina cuantos espacios vacíos dejamos
-    //a la izquierda, walls la cantidad de espacios, o más bien el espasor de la pared, y right
-    //la cantidad de espacios vacíos luego de la pared.
-
-    for (short int j = 0; j < left; j++) cout << ' ';
-    for (short int j = 0; j < walls; j++) cout << char(177);
-    for (short int j = 0; j < right; j++) cout << ' ';
-}
-
-void colored_display(const Seat &seat, const bool &is_admin) {
-
-    //Los asientos ocupados serán impresos con una X, mientras que los disponibles
-    //con un O. Si el admin es el que desea ver la sala de cine, el tiene que poder
-    //identificar cuales sillas cuentan con tecnología VibroSound, por lo cual
-    //si is_admin es true, las sillas que cuentann con VibroSound son impresas
-    //con un ■ en caso de no estar vendidas aún. Por otra parte,
-    //independientemente de si está ocuapada o no, cuenta con
-    //VibroSound o no, el color determina en que forma se está
-    //ofertando la silla a los usuarios, blanco es en General,
-    //rojo es en VibroSound, y amarillo para Gold.
-
-    //Recordemos que una silla con tecnología VibroSound puede ser ofrecida como
-    //General, VibroSound o Gold, mientras que una silla sin tecnología VibroSound
-    //sólo puede ser ofertada en General.
-
-    char chr;
-    if (!seat.is_empty) chr = 'X';
-    else if (is_admin and seat.is_vibro) chr = char(254); //Éste carácter es el ■.
-    else chr = 'O';
-
-    //Recordemos que los enteros diferente de 0 siempre arroja true al ser juzgados
-    //dentro de un condicional, luego el if() se cumplira si el asiento se oferta
-    //en 1 (VibroSound) o 2 (Gold), por lo cual le debemos cambiar el color.
-
-    if (seat.sale_type) {
-
-        //Honestamente éste código lo tuve que copiar y pegar de internet,
-        //más especificamente de éste foro:
-
-        //https://stackoverflow.com/questions/4053837/colorizing-text-in-the-console-with-c
-
-        //Se utiliza para poder manejar colores en consola.
-
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-
-        SetConsoleTextAttribute(hConsole, (seat.sale_type == 2)?6:12);
-        cout << chr;
-        SetConsoleTextAttribute(hConsole, 7);
-    }
-    else cout << chr;
-}
-
 void Show::display_row(short int row, const short int &aux, const bool &is_admin) const {
 
     //Éste método imprime en pantalla la fila row de la matriz seats, aux es para
@@ -188,17 +134,6 @@ void Show::display_row(short int row, const short int &aux, const bool &is_admin
         cout << ' ';
     }
     cout << char(179);
-}
-
-void display_separator(short int size, short int chr1, short int chr2, short int chr3) {
-
-    //Ésta función sólo es con el propósito de ahorrar el tener que reescribir el código para imprimir
-    //cada separación de las filas de la sala de cine, debido a que estos códigos solo difieren en
-    //los valores de algunos carácteres.
-
-    cout << char(chr1);
-    for (int i = 0; i < (size - 1); i++) cout << char(196) << char(196) << char(196) << char(chr2);
-    cout << char(196) << char(196) << char(196) << char(chr3);
 }
 
 void Show::display_seats(const bool &is_admin) const {
@@ -271,38 +206,6 @@ bool get_shows(vector<Show> &shows) {
     }
 }
 
-void display_edge(short int size, short int chr) {
-    for (short int i = 0; i < size; i++) cout << char(205);
-    cout << char(chr);
-}
-
-void display_adapter_separator(short int chr1, short int chr2, short int chr3, short int size1, short int size2) {
-
-    //Es muy especifica para éste problema como tal.
-
-    cout << "   " << char(chr1);
-    display_edge(4, chr2);
-    display_edge(size1, chr2);
-    display_edge(size2, chr2);
-    display_edge(6, chr2);
-    display_edge(10, chr2);
-    display_edge(8, chr2);
-    display_edge(7, chr2);
-    display_edge(10, chr2);
-    display_edge(6, chr3);
-}
-
-void centred_display(string data, const short int &size) {
-
-    //La variable size es el espacio que ocupará todo el display.
-
-    short int spaces = (size - data.length() - 2), aux = int(spaces/2); //Más dos espacios de los extremos
-
-    for (short int i = 0; i < aux; i++) cout << ' ';
-    cout << ' ' << data << ' ';
-    for (short int i = 0; i < (spaces - aux); i++) cout << ' ';
-}
-
 void get_longest_size(const vector<Show> &shows, short int &size1, short int &size2) {
 
     //Es muy especifica para éste problema como tal.
@@ -337,12 +240,6 @@ void Show::display_show(const short int &size1, const short int &size2) const {
     cout << char(186); centred_display(str_hour, 10);
     cout << char(186); centred_display(to_string(room), 6);
     cout << char(186);
-}
-
-void msg_and_cls(string msg) {
-    cout << "  " << msg << endl << endl << "  ";
-    system("pause");
-    system("cls");
 }
 
 bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int row) {
@@ -432,7 +329,7 @@ bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int 
     return true;
 }
 
-void Show::offer_seats(short int shows_num) {
+void Show::modify_offers(short int shows_num) {
 
     string msg;
     bool ask = true;
@@ -474,43 +371,9 @@ void Show::offer_seats(short int shows_num) {
     save_show(shows_num);
 }
 
-short int explain_offer_types(const Seat &seat, const short int &row, const short int &column) {
-
-    short int price;
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    if (seat.sale_type == 2) {
-        price = 19900;
-        cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in ";
-
-        SetConsoleTextAttribute(hConsole, 6);
-        cout << "Gold";
-        SetConsoleTextAttribute(hConsole, 7);
-
-        cout << endl << endl << "  It means that you can enjoy of the VibroSound service and you can choose one" << endl;
-        cout << "  of the cafeteria combos that will be brought to your seat before the movie." << endl;
-    }
-    else if (seat.sale_type == 1) {
-        price = 10900;
-        cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in ";
-
-        SetConsoleTextAttribute(hConsole, 12);
-        cout << "VibroSound";
-        SetConsoleTextAttribute(hConsole, 7);
-
-        cout << endl << endl << "  It means that you can enjoy of the VibroSound service" << endl;
-        cout << "  while you see the movie." << endl;
-    }
-    else {
-        price = 8700;
-        cout << "  The seat " << char(row + 65) << (column + 1) << " is being offered in General";
-        cout << endl << endl << "  It means that you can enjoy the movie on a normal seat." << endl;
-    }
-    return price;
-}
-
 void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned long long int &total, const unsigned long long int &user_id, const unsigned int &seed) {
 
+    string msg;
     bool ask = true;
     unsigned int price;
     short int row, column, combo = 0;
@@ -518,11 +381,13 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
     while (ask and get_index(row, true, false) and get_index(column, false, false, row)) {
 
         if (!seats[row][column].is_empty) {
-            msg_and_cls("Sorry, the seat " + to_string(char(row + 65)) + to_string(column + 1) + " is already reserved");
+            msg = "Sorry, the seat ";
+            msg.push_back(char(row + 65));
+            msg.append(to_string(column + 1));
+            msg.append(" is already reserved");
+            msg_and_cls(msg);
         }
-        else if (seats[row][column].sale_type == -1) {
-            msg_and_cls("Sorry, that is not a seat");
-        }
+        else if (seats[row][column].sale_type == -1) msg_and_cls("Sorry, that is not a seat");
         else {
 
             system("cls");
@@ -537,9 +402,11 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
             else cout << endl << "  It costs $" << price << '.';
 
             if (yes_no_question("You want to reserve that seat? (Enter 'Yes' or 'No')")) {
+
                 system("cls");
                 ask = false;
                 cout << endl << "  Reserve seat " << char(row + 65) << (column + 1) << " ----- $" << price << endl;
+
                 if (charge_money(price)) {
                     seats[row][column].is_empty = false;
                     empty_places--;
@@ -562,6 +429,7 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
                     system("pause");
                 }
                 else {
+
                     cout << endl << "  You canceled the reservation" << endl << endl << "  ";
                     system("pause");
                     return;
@@ -616,51 +484,6 @@ bool is_room_available(const vector<Show> &shows, const short int &room, const s
         if ((shows.at(i).get_room() == room) and ((hour < show_finish_hour) and (show_hour < finish_hour))) return false;
     }
     return true;
-}
-
-void add_show(vector<Show> &shows) {
-
-    bool is_3D, ask = true;
-    string movie_name, genre, ans;
-    short int clasi, hour, finish_hour, duration, room, show_hour, show_finish_hour;
-
-    display_shows(shows);
-
-    movie_name = get_non_empty_line("Enter the name of the movie:");
-    is_3D = yes_no_question("The movie is in 3D? (Enter 'Yes' if it is, or 'No' otherwise)");
-    genre = get_non_empty_line("Enter the genre of the movie:");
-
-    //Técnicamente en todos las warnings siguintes debería decir '...must be a positive integer...', pero
-    //considero que eso no sería amigable con el usuario, por lo cual lo dejamos en '...must be a number...'.
-
-    clasi = get_int_input("Enter the classification of the movie:", "Sorry, the classification must be a number.", 0);
-    hour = get_int_input("At what time will the movie be shown? (In 24 hours format)", "Sorry, the hour must be a number between 0 and 23.", 0, 23);
-    duration = get_int_input("Enter the duration of the movie: (In minutes)", "Sorry, the duration must be a number.", 1);
-    finish_hour = hour + ceiling(float(duration)/60.0f);
-    room = get_int_input("In which of the four rooms will the movie be shown? (Enter the room number)", "Sorry, the room number must be a number between 1 and 4.", 1, 4);
-
-    while (ask and !is_room_available(shows, room, hour, finish_hour, show_hour, show_finish_hour)) {
-        system("cls");
-        display_shows(shows);
-        cout << endl << "  Sorry, room " << room << " is reserved from " << show_hour << ":00 to " << show_finish_hour << ":00, and you need to reserved" << endl;
-        cout << "  the room " << finish_hour - hour << " hour(s), because your movie lasts " << duration << " minutes." << endl << endl;
-        cout << "  Do you want to change the room or the hour?";
-        ask = yes_no_question("Enter 'Yes' for change they, or 'No' for cancel the show)");
-
-        if (ask) {
-
-            system("cls");
-            display_shows(shows);
-            hour = get_int_input("At what time will the movie be shown? (In 24 hours format)", "Sorry, the hour must be a number between 0 and 23.", 0, 23);
-            finish_hour = hour + ceiling(float(duration)/60.0f);
-            room = get_int_input("In which of the four rooms will the movie be shown? (Enter the room number)", "Sorry, the room number must be a number between 1 and 4.", 1, 4);
-        }
-    }
-
-    if (ask) {
-        Show show(shows.size(), movie_name, is_3D, genre, clasi, hour, finish_hour, duration, room, 58);
-        shows.push_back(show);
-    }
 }
 
 

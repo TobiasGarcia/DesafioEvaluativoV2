@@ -6,44 +6,55 @@
 
 using namespace std;
 
+//-------------------------------------------------------------FUNCIONES PARA VALIDACIÓN DE INPUTS
+
 string get_non_empty_line(string question, string warning = "  Sorry, it can't be an empty space.");
 
 bool yes_no_question(string question, string warning = "  Sorry, the answer can only be 'Yes' or 'No'");
 
-bool get_id_input(unsigned long long int &num, bool &is_admin);
+bool get_id_input(unsigned long long int &id, bool &is_admin);
 
-void get_file_name(char *&file_name, bool txt);
-
-short int ask(string question, string *&options, short int num);
-
-void display_welcome(bool is_admin);
-
-bool Qfile(char file_name[]);
-
-//Overloaded Funcion
-bool Qfile(string file_name);
+bool exists_file(string file_name);
 
 void get_files_names(string &source_file, string &output_file, bool code);
 
-short int get_seed();
-
-void codification_methodsSTR(bool code);
-
-unsigned int display_codification_menu();
-
-unsigned int display_main_menu();
-
-unsigned int display_user_menu();
-
-unsigned int display_practice_menu();
-
 bool get_show_id(const vector<Show> &shows, short int &id, bool is_admin);
 
+bool charge_money(unsigned int price);
+
+short int offer_combos();
+
+//-------------------------------------------------------------FUNCIONES PARA IMPRIMIR EN PANTALLA
+
+void msg_and_cls(string msg);
+
+short int explain_offer_types(const Seat &seat, const short int &row, const short int &column);
+
+void display_title(bool is_admin);
+
+void display_edge(short int size, short int chr);
+
+void display_adapter_separator(short int chr1, short int chr2, short int chr3, short int size1, short int size2);
+
+void centred_display(string data, const short int &size);
+
+void display_separator(short int size, short int chr1, short int chr2, short int chr3);
+
+void colored_display(const Seat &seat, const bool &is_admin);
+
+void display_wall(short int left, short int walls, short int right);
+
+//Retorna true si el número int está entre min y max, inclusive.
 template <typename T>
 bool is_in_range(T num, short int min, short int max) {return ((min <= short(num)) and (short(num) <= max));}
 
 template <typename T>
 bool str2int(string str, T &num) {
+
+    //Retorna true si el string str está conformado exclusivamente por digitos
+    //entre el 0 y el 9, incusive, y en éste caso el número entero al que
+    //corresponde es almacenado en la varianle num recibida por referencia.
+    //Retorna false en otro caso.
 
     num = 0;
     unsigned int len = str.length();
@@ -62,21 +73,33 @@ bool str2int(string str, T &num) {
 template <typename T>
 T get_int_input(string question, string warning, T min, T max = 0) {
 
-    //Si no se requiere mínimo, se coloca 0, pues es el menor de los enteros no negativos.
+    //Muestra al usuario la pregunta question y le solicita ingresas un entero no negativo,
+    //si éste número está entre min y max, inclusive, es retornado por la función, en caso
+    //contrario o en el caso de que el input no sea un entero no negativo, imprimira
+    //warning y solicitará otro input.
 
-    //No tiene sentido solicitar sólo el número 0, pues sólo continuará la función
-    //cuando la entrada sea un 0, por lo cual de antemano sabiamos que la entrada
-    //sería un 0, entonces no hacía falta solicitar un dato.
+    //Si no se requiere mínimo, se coloca 0, pues es el menor de los enteros no negativos,
+    //y si no se requere máximo se puede omitir o colocar en 0, en cuyo caso la función
+    //interpretará que no se requiere validación para una cota superior.
+
+    //Nota: Si se piensa con detenimiento notaremos necesitar que el máximo sea 0
+    //es un redundante lógico cuando se trabaja con enteros no negativos, por lo
+    //cual lo podemos usar para determinar cuando no se necesita máximo sin temor
+    //a limitar la función.
 
     T num;
     string ans;
 
     cout << "\n  " << question << ' ';
+
     fflush(stdin);
     getline(cin, ans);
+
     while (!str2int(ans, num) or (num < min) or ((max == 0)? false:(max < num))) {
+
         cout << "  " << warning << endl << endl;
         cout << "  " << question << ' ';
+
         fflush(stdin);
         getline(cin, ans);
     }

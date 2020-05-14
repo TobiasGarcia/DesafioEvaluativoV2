@@ -4,16 +4,16 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-        adminSession.cpp \
         code_decode.cpp \
         dialog.cpp \
         login.cpp \
         main.cpp \
+        session.cpp \
         show.cpp
 
 HEADERS += \
-    adminSession.h \
     code_decode.h \
     dialog.h \
     login.h \
+    session.h \
     show.h
