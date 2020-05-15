@@ -34,6 +34,8 @@ short int explain_offer_types(const Seat &seat, const short int &row, const shor
 
 void display_title(bool is_admin);
 
+void display_sales(const array<unsigned int, 6> &sales, const unsigned long long int &total);
+
 void display_edge(short int size, short int chr);
 
 void display_adapter_separator(short int chr1, short int chr2, short int chr3, short int size1, short int size2);

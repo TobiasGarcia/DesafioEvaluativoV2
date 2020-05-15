@@ -697,7 +697,7 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
                     //Agregamos el precio de la compra al total de ventas diarias, y registramos
                     //en que modalidad se reservó el asiento para poder discriminar las ventas
                     //por estos tipos, dentro del registro de ventas. Actualizamos el archivo
-                    //de texto del registro ventas.
+                    //de texto del registro ventas, sales_record.txt.
 
                     total += price;
                     if (is_3D) sales.at(seats[row][column].sale_type)++;
