@@ -1,8 +1,7 @@
 #include "login.h"
-#include <iostream>
 #include "dialog.h"
 #include "code_decode.h"
-#include <fstream>
+#include <iostream>
 
 //Estas son todas las implementaciones de las funciones que administrarán el inicio de sesión
 //tanto de los usuarios como del admin.
@@ -39,10 +38,32 @@ bool login_admin(unsigned int seed) {
     return false;
 }
 
+bool search_id(string text, unsigned long long int len, unsigned long long int id, unsigned long long int &index, unsigned long long int &end_index) {
+
+    //Retornamos true si la cédula correspondiente a id aparece registrada en text,
+    //en cuyo caso almacenamos en index el índice del primer dígito de la cédula
+    //y en end_index el índice del espacio en blanco inmediatamente posterior
+    //al último dígito de la cédula; o en caso de no encontrar la id en text,
+    //retornamos false. La variable len es la longitud del string text.
+
+    index = 0;
+    string str_id = to_string(id);
+
+    while (index != len) {
+        end_index = text.find(' ', index);
+        if (text.substr(index, (end_index - index)) == str_id) return true;
+        else {
+            index = text.find('\n', end_index);
+            index++;
+        }
+    }
+    return false;
+}
+
 bool add_user(unsigned long long int id, string password, unsigned seed) {
 
     //Almacenamos los datos del usuario (id y password), en el formato que se especificará
-    //a continuación, dentro del archivo users.txt el cual se encuentra codificado
+    //a continuación, dentro del archivo users.txt, el cual se encuentra codificado
     //con semilla seed. Retornamos true si el archivo users.txt puedo ser abierto,
     //o false en caso contrario.
 
@@ -61,15 +82,49 @@ bool add_user(unsigned long long int id, string password, unsigned seed) {
 
         //CEDULA CONTRASEÑA\r\n
 
-        //Nota: El \r es porque cuando se modifican los archivos .txt desde el bloc de notas,
+        //En el caso en que se registre por primera vez y no haya realizado ninguna
+        //reserva aún. En el caso de que el usuario ya haya hecho previamente
+        //una reserva, el formato es el sigueiten:
+
+        //CEDULA CONTRASEÑA HORA-SALA-FILACOLUMNA-COMBO:\r\n
+
+        //Nótese el ':' al final de COMBO.
+
+        //HORA es la hora de la película donde reservó el asiento (en horario militar),
+        //SALA es la sala donde reservó el asiento, ROW es la fila y COLUMN es la columna
+        //de la posición de su asiento en la matriz seats[][], del show correspondiente,
+        //y COMBO es el número del combo que eligió en caso de reservar un asiento Gold.
+        //Para los usuarios que no reservaron un asiento Gold, combo tomará el valor de 0.
+
+        //Por ejemplo, la información de un usuario podría tomar esta forma, si no ha hecho
+        //una reserva aún, pero que sí se ha registrado:
+
+        //9276346837 salpicon\r\n
+
+        //O en el caso de que haya reservado por ejemplo un asiento Gold y haya seleccionado
+        //el combo 3, supongamos que el asiento sea el B5 de la sala 4, para ver una película
+        //programada para las 6:00 pm, se verá de la siguiente forma:
+
+        //9276346837 salpicon 18-4-14-3:\r\n
+
+        //Nota1: Recordemos que la fila B en nustro programa corresponde a 1, y la columna 5 a 4.
+        //Nota2: Las horas que están entre 0 y 9, inclusive, se colocan precedidas por un 0.
+
+        //El dos puntos del final lo utilizamos para saber si el usuario ingresó una
+        //cédula que ya había reservado un asiento, para indicarle que no puede reservar
+        //más de un asiento por cédula, si desea reservar otro debe ponerlo a nombre
+        //de otra.
+
+        //El \r es porque cuando se modifican los archivos .txt desde el bloc de notas,
         //cuando se escribe un salto de línea y se guarda el archivo, al ser leído aparece
         //el carácter \r precediendo a todos los \n, por lo cual, para mantener consistencia
-        //entre cuando el archivo .txt es modificado por el programa o por el programador
+        //entre cuando el archivo .txt es modificado por el programa, o por el programador
         //desde el bloc de notas, se necesita añadir ese \r extra.
 
         //A continuación contruimos un string con los datos del usuario en el formato indicado
-        //previamente y lo guardamos en el archivo users.txt, para posteriormente
-        //codificarlo de nuevo.
+        //previamente para los que se registran por primera vez (ie el primer formato),
+        //y lo guardamos en el archivo users.txt, para posteriormente codificarlo
+        //de nuevo.
 
         //Agregamos la cédula y un espacio en blanco a text.
 
@@ -97,26 +152,38 @@ bool add_user(unsigned long long int id, string password, unsigned seed) {
     }
 }
 
-bool search_id(string text, unsigned long long int len, unsigned long long int id, unsigned long long int &index, unsigned long long int &end_index) {
+bool register_user(unsigned long long int id, unsigned seed) {
 
-    //Retornamos true si la cédula correspondiente a id aparece registrada en text,
-    //en cuyo caso almacenamos en index el índice del primer dígito de la cédula
-    //y en end_index el índice del espacio en blanco inmediatamente posterior
-    //al último dígito de la cédula; o en caso de no encontrar la id en text,
-    //retornamos false. La variable len es la longitud del string text.
+    //Solicitamos al usuario una contraseña para poder registrarlo en el
+    //sistema, es decir, en users.txt, el cual es un archivo que está
+    //codificado con la semilla seed. La contraseña debe tener entre
+    //4 y 16 carácteres formados únicamente por enteros entre el 0
+    //y el 9, inclusive, o letras, mayúsculas o minúsculas, pertenecientes
+    //exclusivamente al alfabeto inglés (26 letras).
+    //La variable id almacena la cédula del usuario.
 
-    index = 0;
-    string str_id = to_string(id);
+    string password;
+    system("cls");
 
-    while (index != len) {
-        end_index = text.find(' ', index);
-        if (text.substr(index, (end_index - index)) == str_id) return true;
-        else {
-            index = text.find('\n', end_index);
-            index++;
-        }
+    fflush(stdin);
+    cout << endl << "  Enter what will be the password for you account, it must have" << endl;
+    cout << "  between 4 and 16 characters (only letters and numbers): "; getline(cin, password);
+
+    //Continuamos solicitando al usuario una contraseña hasta que cumpla con
+    //los requerimientos mencionados.
+
+    while (!valid_password(password)) {
+        cout << "  "; system("pause");
+        system("cls");
+
+        cout << endl << "  Enter what will be the password for you account, it must have" << endl;
+        cout << "  between 4 and 16 characters (only letters and numbers): "; getline(cin, password);
     }
-    return false;
+
+    //Llamamos a la función add_user() para agregar al usuario
+    //al archivo users.txt.
+
+    return add_user(id, password, seed);
 }
 
 bool valid_password(string password) {
@@ -139,8 +206,10 @@ bool valid_password(string password) {
 
         for (unsigned short int i = 0; i < len; i++) {
             if (((password[i] < 48) or (57 < password[i])) and ((password[i] < 65) or (90 < password[i])) and ((password[i] < 97) or (122 < password[i]))) {
+
                 cout << endl << "  Sorry, your password must have only numbers or letters" << endl;
                 cout << "  differents from: " << char(165) << ", " << char(164) << " or letters with accent." << endl << endl;
+
                 return false;
             }
         }
@@ -152,88 +221,6 @@ bool valid_password(string password) {
     }
 }
 
-bool register_user(unsigned long long int id, unsigned seed) {
-
-    //Solicitamos al usuario una contraseña para poder registrarlo en el sistema,
-    //es decir, en users.txt, el cual es un archivo que está codificado
-    //con la semilla seed. La contraseña debe tener entre 4 y 16
-    //carácteres formados únicamente por enteros desde el 0 hasta
-    //el 9, o letras, mayúsculas o minúsculas, pertenecientes
-    //exclusivamente al alfabeto inglés (26 letras).
-    //La variable id almacena la cédula del usuario.
-
-    string password;
-    system("cls");
-
-    fflush(stdin);
-    cout << endl << "  Enter what will be the password for you account, it must have" << endl;
-    cout << "  between 4 and 16 characters (only letters and numbers): "; getline(cin, password);
-
-    //Continuamos solicitando al usuario una contraseña hasta que cumpla con
-    //los requerimientos mencionados.
-
-    while (!valid_password(password)) {
-        cout << "  "; system("pause");
-        system("cls");
-
-        cout << endl << "  Enter what will be the password for you account, it must have" << endl;
-        cout << "  between 4 and 16 characters (only letters and numbers): "; getline(cin, password);
-    }
-
-    //Llamamos a la función create_user() para agregar al usuario
-    //al archivo users.txt.
-
-    return add_user(id, password, seed);
-}
-
-bool update_user(const unsigned long long int &user_id, const short int &hour, const short int &room,
-                 const short int &row, const short int &column, const short int &combo, const unsigned int &seed) {
-
-    string text, f_text, aux = "";
-    unsigned long long int len, index, end_index;
-    if (get_text("../DesafioEvaluativoV2/data/users.txt", text, len)) {
-
-        decode(text, len, seed);
-        search_id(text, len, user_id, index, end_index);
-
-        index = text.find('\r', end_index);
-        f_text = text.substr(index);
-        text = text.substr(0, index);
-
-        text.push_back(' ');
-
-        if (hour < 10) {
-            aux.push_back('0');
-            aux.push_back(char(hour + 48));
-        }
-        else aux.append(to_string(hour));
-
-        text.append(aux);
-        text.push_back('-');
-
-        text.push_back(char(room + 48));
-        text.push_back('-');
-
-        //Las columnas siempre son menores que 10
-
-        text.push_back(char(row + 48));
-        text.push_back(char(column + 48));
-        text.push_back('-');
-
-        text.push_back(char(combo + 48));
-        text.push_back(':');
-
-        len += 11;
-        text.append(f_text);
-
-        code(text, len, seed);
-        save_text("../DesafioEvaluativoV2/data/users.txt", text, len);
-
-        return true;
-    }
-    return false;
-}
-
 bool login(unsigned int seed, bool &is_admin,  unsigned long long int &user_id) {
 
     //Solicitamos al usuario una cédula para que pueda iniciar sesión en el sistema.
@@ -241,9 +228,10 @@ bool login(unsigned int seed, bool &is_admin,  unsigned long long int &user_id) 
     //users.txt y sudo.txt. La variable is_admin, recibida por referencia,
     //terminará siendo true si el usuarios ingresa la palabra clave 'admin'
     //en lugar de su cédula, o false en caso de que inicie sesión o se
-    //registre en el sistema. Retornamos true en caso de que el usuario
-    //se registre, inicie su sesión, o ingrese como administrador;
-    //y false en caso contrario.
+    //registre en el sistema.
+
+    //Retornamos true en caso de que el usuario se registre, inicie su sesión,
+    //o ingrese como administrador; false en caso contrario.
 
     unsigned long long int len;
     string text, password, real_password, ans;
@@ -288,7 +276,7 @@ bool login(unsigned int seed, bool &is_admin,  unsigned long long int &user_id) 
         else if (!search_id(text, len, user_id, index, end_index)) {
 
             //Si no la encontramos, es porque el usuario no se ha registrado aún,
-            //por lo cual le preguntamos si se quiere registrar.
+            //por lo cual le preguntamos si desea hacelor.
 
             cout << endl << "  It looks that you don't have an account yet, do you want to create one?" << endl;
             if (yes_no_question("Enter 'Yes' for create an account, or 'No' not to create it:")) {
@@ -296,8 +284,10 @@ bool login(unsigned int seed, bool &is_admin,  unsigned long long int &user_id) 
                 //En caso afirmativo llamamos a la función register_user().
 
                 register_user(user_id, seed);
+
                 cout << endl << "  Your account has been created successfully!" << endl << endl;
                 cout << "  "; system("pause");
+
                 return true;
             }
             else return false;
@@ -312,10 +302,19 @@ bool login(unsigned int seed, bool &is_admin,  unsigned long long int &user_id) 
             index = text.find(' ', index);
             end_index = text.find('\r', index);
 
+            //Antes de comparar, verificamos si quizá el usuario posee una reserva
+            //previa comprobando si antes del \r, del formato en que se guarda la
+            //información, está el ':'; en caso afirmativo es porque ya posee una
+            //reserva y por tanto le indicamos que debe ingresar con otra cédula,
+            //o en caso contrario procedemos a comprar la contraseña real con
+            //la que ingresará el usuario.
+
             if (text[end_index - 1] == ':') {
+
                 cout << endl << "  Sorry, this ID have an active reserve, if you want to make" << endl;
                 cout << "  an other reserve you have to enter other ID; cinema politics." << endl << endl;
                 cout << "  "; system("pause");
+
                 return false;
             }
 

@@ -222,23 +222,69 @@ void add_show(vector<Show> &shows) {
     }
 }
 
+bool update_user(const unsigned long long int &user_id, const short int &hour, const short int &room,
+                 const short int &row, const short int &column, const short int &combo, const unsigned int &seed) {
 
+    //Esta función actualiza la información de la cuenta del usuario almacenada en users.txt,
+    //para el momento en que el usuario confirma la reserva pagándola.
 
+    string text, f_text, aux = "";
+    unsigned long long int len, index, end_index;
 
+    if (get_text("../DesafioEvaluativoV2/data/users.txt", text, len)) {
 
+        //Decodificamos la información de users.txt, en este punto siempre
+        //habrá información pues el usuario se tiene que haber registrado
+        //previamente para llegar aquí.
 
+        decode(text, len, seed);
 
+        //Buscamos la cédula en text y procedemos a agregar toda la información de la reserva.
+        //guardando toda la información de users.txt posterior a index (inicializado dentro
+        //de search_id()) en f_text, y la estrictamente previa a index en text, para agregar
+        //los datos extras a text y luego volverlo a juntar con f_text, codificar y guardar
+        //la información de nuevo en users.txt.
 
+        search_id(text, len, user_id, index, end_index);
 
+        index = text.find('\r', end_index);
+        f_text = text.substr(index);
+        text = text.substr(0, index);
 
+        text.push_back(' ');
 
+        //Si la hora está entre 0 y 9 inclusive, le colocamos un '0' antes.
 
+        if (hour < 10) {
+            aux.push_back('0');
+            aux.push_back(char(hour + 48));
+        }
+        else aux.append(to_string(hour));
 
+        text.append(aux);
+        text.push_back('-');
 
+        text.push_back(char(room + 48));
+        text.push_back('-');
 
+        //Recordemos que las columnas de las salas son 10, por lo cual
+        //dentro del programa van desde 0 hasta 9, es decir, siempre
+        //se pueden guardar como un único carácter al igual de la fila.
 
+        text.push_back(char(row + 48));
+        text.push_back(char(column + 48));
+        text.push_back('-');
 
+        text.push_back(char(combo + 48));
+        text.push_back(':');
 
+        len += 11;
+        text.append(f_text);
 
+        code(text, len, seed);
+        save_text("../DesafioEvaluativoV2/data/users.txt", text, len);
 
-
+        return true;
+    }
+    return false;
+}
