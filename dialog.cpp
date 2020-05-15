@@ -19,7 +19,7 @@ using namespace std;
 
 string get_non_empty_line(string question, string warning) {
 
-    //El string question es la pregunta que se le hará la usuario,
+    //El string question es la pregunta que se le hará al usuario,
     //mientras que warning es la advertencia que se le dará en caso
     //de ingresar una línea vacía.
 
@@ -44,11 +44,11 @@ string get_non_empty_line(string question, string warning) {
 
 bool yes_no_question(string question, string warning) {
 
-    //El string question es la pregunta que se le hará la usuario,
+    //El string question es la pregunta que se le hará al usuario,
     //mientras que warning es la advertencia que se le dará en caso
     //de ingresar algo diferente a un 'Yes' o 'No'.
 
-    //Nota: Esta función es independiente de las mayúsuclas o minúsculas (no es case sensitive),
+    //Nota: Esta función es independiente de las mayúsculas o minúsculas (no es case sensitive),
     //es decir, reconoce 'yes', 'YES', 'Yes', etc. como una respuesta afirmativa,
     //análogamente con 'no', 'NO', 'No', etc.
 
@@ -119,7 +119,7 @@ void get_files_names(string &source_file, string &output_file, bool code) {
 
     //Solicitamos al usuario el nombre de dos archivos para codifciar o decodificar
     //la información del primero y almacenarla en el segundo, el primero es el texto
-    //fuente, el segundo es donde se guardará el text codificado o decodificado
+    //fuente, el segundo es donde se guardará el texto codificado o decodificado
     //dependiendo de si code es true o false respectivamente.
 
     fflush(stdin);
@@ -148,11 +148,11 @@ void get_files_names(string &source_file, string &output_file, bool code) {
 bool get_show_id(const vector<Show> &shows, short int &id, bool is_admin) {
 
     //Imprimimos en pantalla los shows del vector shows y le solicitamos al
-    //usuario que ingrese la ID de algúno que sea de si interés; cuando
+    //usuario que ingrese la ID de algúno que sea de su interés; cuando
     //ingrese una ID válida está será almacenada en la variable id
-    //recibida por referencia. La variables is_admin es true cuando
-    //es para el admin para quien se necesita ésta función; la diferencia
-    //radica simplemente en los mensajes que se le muestran al usuario.
+    //recibida por referencia. La variable is_admin es true cuando
+    //es el admin quien invoca ésta función; la diferencia radica
+    //simplemente en los mensajes que se le muestran al usuario.
     //Retornamos true si el usuario elige una película, o false en
     //caso de que prefiera cancelar la elección.
 
@@ -170,19 +170,19 @@ bool get_show_id(const vector<Show> &shows, short int &id, bool is_admin) {
 
         display_shows(shows);
 
-        //Le restamos 1 al retorno de get_int_input() para pasar de indices de 1, 2, 3, ... (usuario)
-        //al correspondiente 0, 1, 2, ... (programador).
+        //Le restamos 1 al retorno de get_int_input() para pasar de índices de la forma 1, 2, 3, ... (usuario)
+        //a su correspondiente en la forma 0, 1, 2, ... (programador).
 
         id = get_int_input(msg, "Sorry, the ID must be a number between 1 and " + to_string(shows_num), short(0), shows_num) - 1;
 
         //Ofrecemos la posibilidad de cancelar la elección de la película si se ingresa 0,
-        //en cuyo id será -1 y por tanto retornamos false.
+        //en cuyo caso id será -1 y por tanto retornamos false.
 
         if (id == -1) return false;
 
         //Verificamos que la sala no esté llena. Notemos que esto se debe hacer tanto en la
         //versión de usuario como en la de administrador, pues el administrador no podrá
-        //modificar el modo en que se ofrece ningún asientos ya que todos están vendidos.
+        //modificar el modo en que se ofrece ningún asiento ya que todos estarían vendidos.
 
         else if (shows.at(id).get_empty_places() == 0) {
             cout << endl << "  Sorry, this show is full" << endl;
@@ -205,9 +205,9 @@ bool charge_money(unsigned int price) {
     bool ask = true;
     unsigned int money, num_bills, bills[] = {50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50};
 
-    //Reutilizamos el código del problema uno de la práctica 2, pero le agregamos la validación
-    //de la entrada y otros detalles para mejorarlo a como estaba y adapatarlo a este escenario.
-    //Más que todo cambiar los mensajes de dialogo, pero el resto es idéntico.
+    //Reutilizamos el código del problema 1 de la práctica 2, pero le agregamos la validación
+    //de la entrada y otros detalles para mejorarlo a como estaba, y adapatarlo a éste escenario.
+    //Más que todo cambiar los mensajes de diálogo, pero el resto es idéntico.
 
     while (ask) {
         cout << endl << "  Enter the money please: (or 0 for cancel the reserve) ";
@@ -269,9 +269,9 @@ short int offer_combos() {
 
     //Le ofrecemos los combos al usuario que haya reservado un asiento Gold.
     //Recordemos que esto es para darle una diferencia al asiento Gold de los demás,
-    //en un escenario real esta parte del código debería integrarse junto con el sistema
-    //para administrar la venta alimentos, pero como se menciona en la explicación de los
-    //tipos de asientos dentro del vídeo de Youtube, esta parte es provisional.
+    //en un escenario real esta parte del código debería integrarse con el sistema
+    //para administrar la venta de alimentos, pero como se menciona en la explicación
+    //de los tipos de asientos dentro del vídeo de Youtube, esta parte es provisional.
     //Retorna el número del combo seleccionado 1, 2, 3 o 4.
 
     short int combo;
@@ -312,8 +312,8 @@ void msg_and_cls(string msg) {
 
 short int explain_offer_types(const Seat &seat, const short int &row, const short int &column) {
 
-    //Recibimos un obejto asiento llamado seat, revisamos en que modalidad es ofrecido al
-    //público, y dependiendo de esta, le explicamos al usuario en que consiste y cuanto
+    //Recibimos una estructura asiento llamada seat, revisamos en que modalidad es ofrecida al
+    //público, y dependiendo de ésta, le explicamos al usuario en que consiste y cuanto
     //cuesta reservar ese tipo de asiento. No solicitamos ningún input, solo es una
     //función para imprimir la explicación. Aprovechamos también para retornar
     //el precio del tipo de asiento seleccionado.
@@ -360,7 +360,7 @@ short int explain_offer_types(const Seat &seat, const short int &row, const shor
 
 void display_title(bool is_admin) {
 
-    //Limpiamos la pantalla e imprimimos en pantalla un mensaje de cabecera;
+    //Limpiamos la pantalla e imprimimos en ella un mensaje de cabecera;
     //si es para el admin ponemos el título para el menú de administrador,
     //pero si es para el usuario imprimimos un mensaje de bienvenida al cine.
 
@@ -425,14 +425,15 @@ void display_edge(short int size, short int chr) {
 void display_adapter_separator(short int chr1, short int chr2, short int chr3, short int size1, short int size2) {
 
     //Imprimimos en pantalla un separador para una matriz. Cada columna de la matriz
-    //posee una longitud especifica. Esta función es utilizada para imprimir los
+    //posee una longitud específica. Esta función es utilizada para imprimir los
     //bordes de la cartelera de películas.
 
     //Nota: En general las funciones se deberían implementar siempre pensando
     //en la portabilidad de éstas, pero lamentablemente esta función es demasiado
-    //especifica para este problema, así como la mayor parte de las otras funciones
+    //específica para este problema, así como la mayor parte de las otras funciones
     //para imprimir en pantalla, pues la forma en que se imprimen los datos en la
-    //consola es algo muy personal y es común que cambie para cada proyecto.
+    //consola es algo muy característico de cada quien, y es incluso común que
+    //cambie dependiendo del proyecto.
 
     cout << "   " << char(chr1);
     display_edge(4, chr2);
@@ -448,9 +449,9 @@ void display_adapter_separator(short int chr1, short int chr2, short int chr3, s
 
 void centred_display(string data, const short int &size) {
 
-    //Imprime en pantalla el string data con una longitud de size espacios
-    //pero colocando data en el centro, lo que sobre es rellenado
-    //con ' ' (espacios vacíos).
+    //Imprime en pantalla el string data con una longitud de size
+    //espacios, pero colocando data en el centro, lo que sobra es
+    //rellenado con ' ' (espacio vacío).
 
     //Nota: Preferí pasar todos los datos en tipo string en lugar
     //de hacer de ésta función una plantilla, pues es mucho más
@@ -481,14 +482,14 @@ void colored_display(const Seat &seat, const bool &is_admin) {
 
     //Imprimimos en pantalla el asiento seat teniendo en cuenta
     //el color según la forma en que se ofrece al público,
-    //y forma dependiendo de si está ocupado.
+    //y la forma dependiendo de si está ocupado o no.
 
     //Colores: Blanco para General, rojo para VibroSound y amarillo para Gold.
-    //Formas: O para asiento vacío, X para asiento ocupado
+    //Formas: O para asiento vacío, X para asiento ocupado.
 
     //Nota: Como se menciona en la explicación de de los tipos de asientos dentro
     //del vídeo de Youtube, la forma extra ■ (el char(254)) está reservada para que
-    //el administrador pueda identificar cuáles asientos cuentan con la tecnología
+    //el administrador pueda identificar cuales asientos cuentan con la tecnología
     //VibroSound.
 
     char chr;
@@ -496,8 +497,8 @@ void colored_display(const Seat &seat, const bool &is_admin) {
     else if (is_admin and seat.is_vibro) chr = char(254); //Éste carácter es el ■.
     else chr = 'O';
 
-    //Recordemos que los enteros diferente de 0 siempre arroja true al ser juzgados
-    //dentro de un condicional, luego el if() se cumplira si el asiento se oferta
+    //Recordemos que los enteros diferentes de 0 siempre arrojan true al ser juzgados
+    //dentro de un condicional, luego el if() se cumplirá si el asiento se oferta
     //en 1 (VibroSound) o 2 (Gold), por lo cual le debemos cambiar el color.
 
     if (seat.sale_type) {

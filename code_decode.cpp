@@ -6,7 +6,7 @@ using namespace std;
 
 //Esta libreria contiene todas las implementaciones de las funciones para codificar y decodificar texto.
 
-//El método de códificación utilizado es el método 1 expuesto en la práctica 3 del laboratorio;
+//El método de codificación utilizado es el método 1 expuesto en la práctica 3 del laboratorio;
 //como sabemos en este tipo de codificación hay que pasar el texto a binario, éste binario
 //será almacenado en el arreglo de bools llamdado bin[].
 
@@ -95,7 +95,7 @@ void code_method(bool bin[], unsigned long long int len, unsigned int n) {
 
         //Al termianr el ciclo anterior, si la cantidad de bits no es multiplo de n,
         //pos será diferente de len, por lo cual procesamos el último grupo de bits
-        //de longitud menor a len - pos.
+        //de longitud len - pos.
 
         if (pos != len) {
             if (zeros > ones) pass = 2;
@@ -108,10 +108,10 @@ void code_method(bool bin[], unsigned long long int len, unsigned int n) {
 
 bool get_text(string path, string &text, unsigned long long int &len) {
 
-    //Leemos el archivo .txt de nombre file_name y almacena por referencia
+    //Leemos el archivo .txt de nombre file_name y almacenamos por referencia
     //el texto contenido en él en el string text, además almacenamos su
-    //longitud en la variable len recibida por referencia.
-    //Retornamos true si el archivo pudo ser abirto, o false en caso contrario
+    //longitud en la variable len recibida por referencia. Retornamos
+    //true si el archivo pudo ser abirto, o false en caso contrario
     //y no modificamos ni text ni len.
 
     //El archivo file_name es abirto con ios::binary para leer los binarios
@@ -160,7 +160,7 @@ void text2bin(string text, unsigned long long int len, bool *&bin) {
 short int bin2dec(bool bin[], unsigned long long pos) {
 
     //Retornamos el entero correspondiente al binario almacenado en
-    //las 8 posiciones contiguas de bin[] comenzando en el indice pos.
+    //las 8 posiciones contiguas de bin[] comenzando en el índice pos.
 
     short int num = 0, two_pow = 1;
     for (unsigned int i = 0; i < 8; i++) {
@@ -285,6 +285,10 @@ void decode(string &text, unsigned long long int len, unsigned seed) {
 
 bool code_file(string path_nat, string path_code, unsigned int seed) {
 
+    //Codifica el texto del archivo de ruta path_nat y el resultado
+    //lo almacena en el archivo de ruta path_code. La codificación
+    //es realizada con la semilla seed.
+
     string text;
     unsigned long long int len;
     if (get_text(path_nat, text, len)) {
@@ -301,6 +305,10 @@ bool code_file(string path_nat, string path_code, unsigned int seed) {
 }
 
 bool decode_file(string path_code, string path_nat, unsigned int seed) {
+
+    //Decodifica el texto del archivo de ruta path_code y el resultado
+    //lo almacena en el archivo de ruta path_nat. La decodificación
+    //es realizada con la semilla seed.
 
     string text;
     unsigned long long int len;

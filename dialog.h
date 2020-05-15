@@ -51,7 +51,7 @@ void display_wall(short int left, short int walls, short int right);
 
 //-----------------------------------------------------------------------------FUNCIONES PLANTILLA
 
-//Retorna true si el número int está entre min y max, inclusive.
+//Retorna true si el número num está entre min y max, inclusive.
 template <typename T>
 bool is_in_range(T num, short int min, short int max) {return ((min <= short(num)) and (short(num) <= max));}
 
@@ -59,8 +59,8 @@ template <typename T>
 bool str2int(string str, T &num) {
 
     //Retorna true si el string str está conformado exclusivamente por digitos
-    //entre el 0 y el 9, incusive, y en éste caso el número entero al que
-    //corresponde es almacenado en la varianle num recibida por referencia.
+    //entre el 0 y el 9, inclusive, y en éste caso el número entero al que
+    //corresponde es almacenado en la variable num recibida por referencia.
     //Retorna false en otro caso.
 
     num = 0;
@@ -80,16 +80,16 @@ bool str2int(string str, T &num) {
 template <typename T>
 T get_int_input(string question, string warning, T min, T max = 0) {
 
-    //Muestra al usuario la pregunta question y le solicita ingresas un entero no negativo,
+    //Muestra al usuario la pregunta question y le solicita ingresar un entero no negativo,
     //si éste número está entre min y max, inclusive, es retornado por la función, en caso
-    //contrario o en el caso de que el input no sea un entero no negativo, imprimira
+    //contrario o en el caso de que el input no sea un entero no negativo, imprimirá
     //warning y solicitará otro input.
 
     //Si no se requiere mínimo, se coloca 0, pues es el menor de los enteros no negativos,
-    //y si no se requere máximo se puede omitir o colocar en 0, en cuyo caso la función
+    //y si no se requiere máximo se puede omitir o colocar en 0, en cuyo caso la función
     //interpretará que no se requiere validación para una cota superior.
 
-    //Nota: Si se piensa con detenimiento notaremos necesitar que el máximo sea 0
+    //Nota: Si se piensa con detenimiento notaremos que necesitar que el máximo sea 0
     //es un redundante lógico cuando se trabaja con enteros no negativos, por lo
     //cual lo podemos usar para determinar cuando no se necesita máximo sin temor
     //a limitar la función.

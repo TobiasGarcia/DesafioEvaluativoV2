@@ -10,7 +10,7 @@
 
 
 //------------------------------------------------------------------------------------------
-//------------------------MÉTODOS PARA MANEJAR LOS ARCHIVOS TXT-----------------------------
+//------------------------MÉTODOS PARA MANEJAR LOS ARCHIVOS .TXT-----------------------------
 //------------------------------------------------------------------------------------------
 
 void Show::fill_row(string line, short row) {
@@ -116,8 +116,10 @@ Show::Show(short int _id, bool &exists) {
         //SALA (Solo se cuentan con 4 salas, la 1, la 2, la 3 y la 4)
         //CANTIDAD DE PUESTOS AÚN SIN RESERVAR
         //MATRIZ DE ASIENTOS EN SU FORMATO DE STRING
+        //
 
-        //Nota: La hora de finalización se calcula como la hora en que comienza la película
+        //Nota1: Al final hay un salto de línea.
+        //Nota2: La hora de finalización se calcula como la hora en que comienza la película
         //más la cantidad de horas que se tenga que reservar la sala para presentarla,
         //por lo cual si la película dura dos horas y un minuto (ie 121 minutos),
         //como dura más de las dos horas, se debe reservar la sala por 3,
@@ -146,10 +148,10 @@ Show::Show(short int _id, bool &exists) {
         //         10 10 10 10
         //
 
-        //Nota: Como no se especificaba el 3D, lo coloqué como si sí lo fuera en este ejemplo.
-        //NOTA IMPORANTE: Simepre debe ir un salto de línea al final del archivo.
+        //Nota1: Como no se especificaba el 3D, lo coloqué como si sí lo fuera en este ejemplo.
+        //NOTA IMPORANTE: Siempre debe ir un salto de línea al final del archivo.
 
-        //En este orden de ideas, es fácil entender el resto de código de la método.
+        //En este orden de ideas, es fácil entender el resto de código del método.
 
         getline(file, line); movie_name = line;
         getline(file, line); is_3D = (line == "1");
@@ -172,7 +174,7 @@ Show::Show(short int _id, bool &exists) {
 
 Show::Show(short int _id, string _movie_name, bool _is_3D, string _genre, short int _clasi, short int _hour, short int _finish_hour, short int _duration, short int _room, short int _empty_places) {
 
-    //Como mencionamos antes, el constructor está sobrecargar, por lo cual cuando se llama con estos
+    //Como mencionamos antes, el constructor está sobrecargado, por lo cual cuando se llama con estos
     //argumentos el Show se construye de forma más sencilla y la matriz seats[][] se inicializa
     //con la sala vacía y todos los asientos siendo ofrecidos en General.
 
@@ -187,7 +189,7 @@ Show::Show(short int _id, string _movie_name, bool _is_3D, string _genre, short 
 
 void Show::save_show(short int shows_num) const {
 
-    //Guardamos la información de la película en su correspondiente archivo de text,
+    //Guardamos la información de la película en su correspondiente archivo de texto,
     //recordemos que si por ejemplo la id de la película es 2, el archivo correspondiente
     //es show2.txt.
 
@@ -196,8 +198,8 @@ void Show::save_show(short int shows_num) const {
 
     //NOTA IMPORTANTE: Si se abre al archivo de texto con bloc de notas por ejemplo,
     //en el lugar donde van los carácteres "raros", como la ñ (eñe) o las letras con tilde
-    //en caso de que el nombre de la película o el género los posea, se veran algunos símbolos
-    //extraños, pero esto no es de preocuparse pues solo es la interpretación que le da
+    //en caso de que el nombre de la película o el género los posean, se verán algunos símbolos
+    //extraños, pero esto no es de preocuparse pues sólo es la interpretación que le da
     //el bloc de notas al binario que se almacenó, pero cuando el archivo es abierto
     //de nuevo con fstream los carácteres son leídos como eran originalmente, por lo cual
     //no hay ningún problema en trabajar con tildes, con ñ (eñe) o carácteres de la tabla
@@ -302,18 +304,19 @@ bool get_shows(vector<Show> &shows) {
 void Show::display_row(short int row, const short int &aux, const bool &is_admin) const {
 
     //Imprime en pantalla la fila row de la matriz seat[][] con un color según
-    //lo forma en que estén siendo ofrecidos al público y forma dependiendo
-    //de si está vacío u ocupado.
+    //la forma en que estén siendo ofrecidos al público los asientos de la fila,
+    //y la forma dependiendo de si están vacíos u ocupados.
 
     //Colores: Blanco para General, rojo para VibroSound y amarillo para Gold.
-    //Formas: O para asiento vacío, X para asiento ocupado
+    //Formas: O para asiento vacío, X para asiento ocupado.
 
-    //Si is_admin es true imprime los asientos que cuentan con la tecnología
-    //VibroSound con la forma ■ (el char(254)).
+    //Si is_admin es true imprime los asientos vacíos que cuentan con la tecnología
+    //VibroSound con la forma ■ (el char(254)), en caso contrario los imprime
+    //con O.
 
-    //Nota1: Para la elección de la forma la prevalencia es X < ■ < O, es decir,
+    //Nota1: Para la elección de la forma la prevalencia es X > ■ > O, es decir,
     //si un asiento está ocupado va con X, si no, si es VibroSound va con ■,
-    //o si no es ningúna de las anteriores va con O.
+    //o si no es ningúna de las anteriores, va con O.
 
     //Nota2: El color es independiente de la forma.
 
@@ -330,8 +333,8 @@ void Show::display_seats(const bool &is_admin) const {
     //Imprime los asientos de la sala de cine donde se presentará
     //la película correspondiente a show.
 
-    //No hace falta tratar de entender el código siguiente, sólo es una
-    //forma de mostrar los asientos en una forma que me pareció adecuada.
+    //No hace falta tratar de entender el código siguiente, sólo es para
+    //mostrar los asientos en una forma que me pareció adecuada.
 
     short int aux = 0;
 
@@ -372,11 +375,11 @@ void get_longest_size(const vector<Show> &shows, short int &max_size_name, short
     //Para poder imprimir la cartelera de películas en pantalla con un formato que
     //me pareciera correcto, decidí implementar una función que determinara la
     //mayor de las longitudes de los nombres de las películas y de los géneros,
-    //para poder utilizarlos para imprimer el marco de la cartelera con un tamaño
+    //para poder utilizarlas para imprimir el marco de la cartelera con un tamaño
     //suficientemente grande para contenerlos.
 
-    //Se incilializan en 4 y 5 porque mínimamente deben contener la etiqueta de
-    //'Name' y el de 'Genre' respectivamente.
+    //Se incilializan en 4 y 5 porque mínimamente deben contener las etiquetas de
+    //'Name' y la de 'Genre' respectivamente.
 
     max_size_name = 4;
     max_size_genre = 5;
@@ -413,8 +416,8 @@ void Show::display_show(const short int &max_size_name, const short int &max_siz
     //Pasamos de horario militar al convencional para ser amigables con el
     //usuario. La fórmula para pasar de horario militar al convencional
     //es: convencional = 1 + (militar - 1)%12, a excepción del 0,
-    //por lo cual manejamos este caso particular mediante el uso
-    //del operador ternario.
+    //por lo cual manejamos este caso particular mediante la
+    //aplicación del operador ternario.
 
     string str_hour = (hour == 0)?"12":to_string(1 + (hour-1)%12);
     str_hour += (hour < 12)?":00 am":":00 pm";
@@ -440,7 +443,7 @@ void display_shows(const vector<Show> &shows) {
 
     //Sumamos 2 simplementa para que cuando se muestre el nombre de mayor longitud
     //y el género de mayor longitud, display_adapter_separator() coloque dos espacios
-    //vacíos en los extremos, es solo cuestión de visualización.
+    //vacíos en los extremos; es sólo cuestión de visualización.
 
     max_size_name += 2;
     max_size_genre += 2;
@@ -466,11 +469,11 @@ bool Show::get_index(short &index, bool is_row, const bool &is_admin, short int 
 
     //Imprime en pantalla la sala de cine donde se presentará la película. Solicita al
     //usuario el índice de una fila o una columna dependiendo de si is_row es true o
-    //false resepectivamente. La variable row es para el caso en que se solicita la
-    //columna mostrarle al usuario cual fila había escogido. Si es el administrador
-    //quien invoca el método (ie is_admin = true), simplemetne cambiamos los menajes
+    //false respectivamente. La variable row es para el caso en que se solicita la
+    //columna, mostrarle al usuario cual fila había escogido. Si es el administrador
+    //quien invoca éste método (ie is_admin = true), simplemetne cambiamos los menajes
     //que se muestran al usuario. Retornamos true si el usuario ingresa una fila o
-    //columna valida y la almacenamos en la variable index recibida por referencia;
+    //columna válida y la almacenamos en la variable index recibida por referencia;
     //o false en caso de que el usuario decida escoger otra película.
 
     bool ask = true;
@@ -555,7 +558,7 @@ bool is_room_available(const vector<Show> &shows, const short int &room, const s
 
     //Cuando el admin programa una nueva película, debemos tener en cuenta de que la sala en que
     //se va a proyectar la película esté disponible en el horario ingresado, tanto que no esté
-    //siendo proyectada otra pelicula como que no vaya a comenzar a ser proyectada durrante
+    //siendo proyectada otra película como que no vaya a comenzar a ser proyectada durante
     //la que se está programando. Está función retorna true si la sala está disponible en
     //el horario ingresado por el admin o false en caso contrario.
 
@@ -611,7 +614,7 @@ void Show::modify_offers(short int shows_num, bool &offer) {
             cout << endl << "  We can offer the seat " << char(row + 65) << (column + 1) << " in the modalities:" << endl;
             cout << "  1. General     2. VibroSound     3. Gold" << endl << "  ";
 
-            //El restamos uno al retorno de la función get_int_input() para poder pasar
+            //Le restamos 1 al retorno de la función get_int_input() para poder pasar
             //de un entero positvo a uno de los índices de la matriz.
 
             seats[row][column].sale_type = get_int_input("In which of them do you want to offer it? (1 - 3)", "\nSorry, we only have these 3 modalities:\n  1. General     2. VibroSound     3. Gold", 1, 3) - 1;
@@ -661,7 +664,7 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
 
             //En caso de que escoja un asiento válido, es decir, que esté desocupado
             //y sea un asiento de verdad, no como por ejemplo los de las esquinas
-            //de la matriz seats[][], procedemos a explicarle en qué consite y
+            //de la matriz seats[][], procedemos a explicarle en qué consiste y
             //cuanto cuesta el tipo de asiento que escogió.
 
             price = explain_offer_types(seats[row][column], row, column);
@@ -674,7 +677,7 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
             }
             else cout << endl << "  It costs $" << price << '.';
 
-            //Confirmamos la reservar del asiento.
+            //Confirmamos la reserva del asiento.
 
             if (yes_no_question("You want to reserve that seat? (Enter 'Yes' or 'No')")) {
 
@@ -686,11 +689,9 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
 
                 if (charge_money(price)) {
 
-                    //Y si llegamos a esta parte del código, es porque el usuario decidió
-                    //reservar el asiento.
-
-                    //Actualizamos la matriz seats[][] y reducimos los asientos disponibles
-                    //de la función.
+                    //Si llegamos a ésta parte del código, es porque el usuario decidió
+                    //reservar el asiento, por lo cual actualizamos la matriz seats[][]
+                    //y reducimos los asientos disponibles de la función.
 
                     seats[row][column].is_empty = false;
                     empty_places--;
@@ -709,7 +710,7 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
 
                     if (seats[row][column].sale_type == 2) {
 
-                        //Y en el caso de que haya escogido un asiento tipo Gold,
+                        //En el caso de que haya escogido un asiento tipo Gold,
                         //le preguntamos cuál combo desea llevar como se explicó
                         //en el vídeo de Youtube.
 

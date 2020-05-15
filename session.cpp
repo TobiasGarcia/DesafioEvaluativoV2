@@ -32,11 +32,11 @@ bool update_user(const unsigned long long int &user_id, const short int &hour, c
 
         //Decodificamos la información de users.txt, en este punto siempre
         //habrá información pues el usuario se tiene que haber registrado
-        //previamente para llegar aquí.
+        //previamente para llegar hasta aquí.
 
         decode(text, len, seed);
 
-        //Buscamos la cédula en text y procedemos a agregar toda la información de la reserva.
+        //Buscamos la cédula en text y procedemos a agregar toda la información de la reserva,
         //guardando toda la información de users.txt posterior a index (inicializado dentro
         //de search_id()) en f_text, y la estrictamente previa a index en text, para agregar
         //los datos extras a text y luego volverlo a juntar con f_text, codificar y guardar
@@ -139,7 +139,7 @@ void admin_session(vector<Show> &shows, array<unsigned int, 6> &sales, unsigned 
         }
         else if (opt == 3) display_sales(sales, total);
 
-        //En esta parte coloqué de nuevo la validación de la cuanta de administrador
+        //En esta parte coloqué de nuevo la validación de la cuenta de administrador
         //porque es la funcionalidad más peligrosa del administrador, la de poder
         //codificar o decodificar información, pues permite cambiar la contraseña
         //de administrador codificando un archivo y llamándolo sudo.txt, o decodificar
@@ -148,7 +148,7 @@ void admin_session(vector<Show> &shows, array<unsigned int, 6> &sales, unsigned 
         //resetea el archivo del registro de ventas del día.
 
         //Nota: No es un requisito, pero para no llenar la carpeta data de muchos archivos .txt,
-        //todas las codificaciones o decodificaciones de archivos se sugieren hacer en el
+        //todas las codificaciones o decodificaciones de archivos se sugieren hacer
         //desde el archivo nat.txt a un archivo codificado como users.txt, sudo.txt o
         //sales_record.txt, o desde uno de los codificados a nat.txt.
 
@@ -231,8 +231,8 @@ void schedule_show(vector<Show> &shows) {
     }
 
     //Si salimos del ciclo while anterior y ask continua siedno true, es porque is_room_available()
-    //retorno true, por lo cual procedemos a crear el show ingresado y almacenarlo en el vector de
-    //shows, o simplemente no hacemos nada en caso de que ask sea false, pues significa que la
+    //retornó true, por lo cual procedemos a crear el show ingresado y almacenarlo en el vector de
+    //shows, o sencillamente no hacemos nada en caso de que ask sea false, pues significa que la
     //sala indicada estaba ocupada a la hora ingresada y el admin decidió cancelar la función
     //en lugar de reprogramarla.
 
@@ -264,7 +264,7 @@ bool get_sales_record(array<unsigned int, 6> &sales, unsigned long long int &tot
         decode(text, len, seed);
 
         //El registro de ventas tiene un formato simple y está hecho en parte para
-        //que pueda ser facilmente visualizado al decodificar el archivo y abrirlo
+        //que pueda ser fácilmente visualizado al decodificar el archivo y abrirlo
         //con un programa como bloc de notas. El formato es el siguiente:
 
         //TODAY'S SALES RECORD:
@@ -284,7 +284,7 @@ bool get_sales_record(array<unsigned int, 6> &sales, unsigned long long int &tot
         //3D, VI3D, a la cantidad de asientos vendido en VibroSound para películas 3D,
         //y así análogamente; mientras que VAl_GE3D corresponde al valor equivalente
         //de haber vendido GE3D asientos en General para películas 3D, y así análogamente.
-        //TOTAL corresponde a el valor total de las ventas.
+        //TOTAL corresponde al valor total de las ventas.
 
         //Nota: Al final siempre se debe dejar un salto de línea.
 
@@ -344,7 +344,7 @@ void save_sales(const array<unsigned int, 6> &sales, const unsigned long long in
     //VibroSound --- $10900
     //Gold --- $19900
 
-    //Nótese que el 3D cuesta $3000 pesos más.
+    //Nótese que el 3D cuesta $3000 más.
 
     string text;
 
@@ -368,8 +368,8 @@ void save_sales(const array<unsigned int, 6> &sales, const unsigned long long in
 
 void reset_sales_record(array<unsigned int, 6> &sales, unsigned long long int &total, unsigned int seed) {
 
-    //Esta función simplemente resetea todo el registro de ventas almacenado en
-    //el array sales, es decir, los coloca en 0 junto con el valor de la variable,
+    //Esta función simplemente resetea todo el registro de ventas almacenado en el
+    //array sales, es decir, los coloca en 0 junto con el valor de la variable,
     //recibida por referencia, total; luego procede a actualizar ésta información
     //en el archivo sales_record.txt.
 

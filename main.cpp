@@ -7,9 +7,23 @@
 
 using namespace std;
 
+//------------------------------------------------------------------
+//LA CONTRASEÑA DE ADMINISTRADOR QUE VIENE POR DEFECTO ES 'megajugo'
+//------------------------------------------------------------------
+//Si se desea cambiar basta escribir la contraseña nuva dentro del archivo
+//nat.txt que se encuentra en la carpeta data que está dentro de la carpeta
+//del proyecto, luego iniciar al programa, loguearse como administrador
+//escribiendo la palabra clave 'admin' en lugar de la cédula, entrar en
+//la opción 5 e ingresar nat y luego sudo. De esta forma se puede cambiar
+//la contraseña de administrador.
+
+//El programa viene por defecto con algunas películas en la cartelera y
+//reservas hechas, pero el registro de ventas y el archivo users.txt
+//fueron reinicidos.
+
 //NOTA IMPORTANTE SOBRE COMPATIBILIDAD:
 
-//Este programa fue desarrollado y testeado utilziando el sistema operativo Windows 10,
+//Este programa fue desarrollado y testeado utilizando el sistema operativo Windows 10,
 //por lo cual se da garantía de su correcto funcionamiento bajo este mismo sistema operativo,
 //pues se utilizó una libreria en particular para agregar colores a la consola de Windows,
 //la libreria windows.h, y dos instrucciones del propio sistema, 'cls' y 'pause'.
@@ -17,7 +31,7 @@ using namespace std;
 //NOTA SOBRE EL MANEJO DE ARCHIVOS:
 
 //El método de codificación utilizado sobre los archivos fue el método 1 expuesto en la
-//práctica 3 del laboratorio, con n = 3 (semilla igual a 3). Es importante no cambiar
+//práctica 3 del laboratorio, con n = 12 (semilla igual a 12). Es importante no cambiar
 //esta semilla pues los archivos con los que viene por defecto el programa fueron
 //codificados con ella.
 

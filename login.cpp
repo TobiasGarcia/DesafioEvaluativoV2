@@ -11,7 +11,7 @@ bool login_admin(unsigned int seed) {
     //Solicitamos al usuario la contraseña para iniciar sesión como admin.
     //La variable seed es la semilla con la que se codificó el archivo
     //sudo.txt. Retornamos true si el usuario ingresa la contraseña
-    //corracta, o false en caso contrario.
+    //correcta, o false en caso contrario.
 
     unsigned long long int len;
     string password, real_password;
@@ -24,7 +24,7 @@ bool login_admin(unsigned int seed) {
     if (get_text("../DesafioEvaluativoV2/data/sudo.txt", real_password, len)) {
         decode(real_password, len, seed);
 
-        //Verificamos que la contraseña ingresada la sea correcta.
+        //Verificamos que la contraseña ingresada sea la correcta.
 
         if (password == real_password) return true;
         else {
@@ -64,7 +64,7 @@ bool add_user(unsigned long long int id, string password, unsigned seed) {
 
     //Almacenamos los datos del usuario (id y password), en el formato que se especificará
     //a continuación, dentro del archivo users.txt, el cual se encuentra codificado
-    //con semilla seed. Retornamos true si el archivo users.txt puedo ser abierto,
+    //con semilla seed. Retornamos true si el archivo users.txt pudo ser abierto,
     //o false en caso contrario.
 
     string text;
@@ -94,10 +94,10 @@ bool add_user(unsigned long long int id, string password, unsigned seed) {
         //SALA es la sala donde reservó el asiento, ROW es la fila y COLUMN es la columna
         //de la posición de su asiento en la matriz seats[][], del show correspondiente,
         //y COMBO es el número del combo que eligió en caso de reservar un asiento Gold.
-        //Para los usuarios que no reservaron un asiento Gold, combo tomará el valor de 0.
+        //Para los usuarios que no reservaron un asiento Gold, COMBO tomará el valor de 0.
 
         //Por ejemplo, la información de un usuario podría tomar esta forma, si no ha hecho
-        //una reserva aún, pero que sí se ha registrado:
+        //una reserva aún, pero sí se ha registrado:
 
         //9276346837 salpicon\r\n
 
@@ -121,10 +121,9 @@ bool add_user(unsigned long long int id, string password, unsigned seed) {
         //entre cuando el archivo .txt es modificado por el programa, o por el programador
         //desde el bloc de notas, se necesita añadir ese \r extra.
 
-        //A continuación contruimos un string con los datos del usuario en el formato indicado
+        //A continuación construimos un string con los datos del usuario en el formato indicado
         //previamente para los que se registran por primera vez (ie el primer formato),
-        //y lo guardamos en el archivo users.txt, para posteriormente codificarlo
-        //de nuevo.
+        //y lo guardamos en el archivo users.txt, para posteriormente codificarlo de nuevo.
 
         //Agregamos la cédula y un espacio en blanco a text.
 
@@ -180,10 +179,9 @@ bool register_user(unsigned long long int id, unsigned seed) {
         cout << "  between 4 and 16 characters (only letters and numbers): "; getline(cin, password);
     }
 
-    //Llamamos a la función add_user() para agregar al usuario
-    //al archivo users.txt.
+    //Llamamos a la función add_user() para agregar al usuario al archivo users.txt.
 
-    //Nota: En esta parte me hubiera gusta hacer algo como enviarle un correo electrónico
+    //Nota: En esta parte me hubiera gustado hacer algo como enviarle un correo electrónico
     //al usuario o algo por el estilo, para confiamar la cuenta creada, pues así podriamos
     //evitar que cualquier persona puediera reservar a nombre de otra con solo conocer su
     //cédula, aunque como el pago se cobra a la persona que está utilizando la aplicación,
@@ -282,7 +280,7 @@ bool login(unsigned int seed, bool &is_admin,  unsigned long long int &user_id) 
         else if (!search_id(text, len, user_id, index, end_index)) {
 
             //Si no la encontramos, es porque el usuario no se ha registrado aún,
-            //por lo cual le preguntamos si desea hacelor.
+            //por lo cual le preguntamos si desea hacerlo.
 
             cout << endl << "  It looks that you don't have an account yet, do you want to create one?" << endl;
             if (yes_no_question("Enter 'Yes' for create an account, or 'No' not to create it:")) {
@@ -300,7 +298,7 @@ bool login(unsigned int seed, bool &is_admin,  unsigned long long int &user_id) 
         }
         else {
 
-            //Si el usuario ingreso una cédula válida, is_admin es false, y la cédula fue
+            //Si el usuario ingresó una cédula válida, is_admin es false, y la cédula fue
             //encontrada en el string text, procedemos a extraer de éste último la contraseña
             //del usuario con ayuda de las variables index y end_index (ver funcionamiento
             //de search_id()) para compararla con la que ingresará el usuario a continuación.
@@ -312,7 +310,7 @@ bool login(unsigned int seed, bool &is_admin,  unsigned long long int &user_id) 
             //previa comprobando si antes del \r, del formato en que se guarda la
             //información, está el ':'; en caso afirmativo es porque ya posee una
             //reserva y por tanto le indicamos que debe ingresar con otra cédula,
-            //o en caso contrario procedemos a comprar la contraseña real con
+            //o en caso contrario procedemos a comparar la contraseña real con
             //la que ingresará el usuario.
 
             if (text[end_index - 1] == ':') {

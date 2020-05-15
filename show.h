@@ -11,16 +11,16 @@ struct Seat {
 
     //Cada asiento debería almacenar principalmente 3 cosas, una bandera para saber si
     //está vacío u ocupado, otra bandera para saber si cuenta con la tecnología VibroSound,
-    //y un entero que almacenará la forma en que es ofresido al público. Recordemos que
+    //y un entero que almacenará la forma en que es ofrecido al público. Recordemos que
     //como se mencionaba en la explicación del vídeo de Youtube, hay 3 tipos, General,
     //VibroSound y Gold, los cuales corresponden a 0, 1 y 2 respectivamente; pero además
     //como se explicó también, en la matriz de asientos hay espacios que no son asientos
     //en realidad, por lo cual, para identificarlos almacenamos -1 en sale_type.
 
-    //Obtamos por utilizar una estrucuta en lugar de una clase pues no necesitamos métodos,
+    //Optamos por utilizar una estructura en lugar de una clase pues no necesitamos métodos,
     //sólo el poder construir un "array" pero de elementos de diferente tipo.
 
-    //Nota: Preferí no almacenar detro de la estructura asiento la ID de la persona que lo reservó,
+    //Nota: Preferí no almacenar detro de la estructura Seat la ID de la persona que lo reservó,
     //esto es porque haría mucho más complicado el manejo de la base de datos de las salas, por lo
     //cual la información de quien reservó el asiento es almacenada en cada una de las cuentas
     //de usuarios dentro del archivo users.txt, el cual está codificado por seguridad.
@@ -32,9 +32,9 @@ struct Seat {
 
 class Show {
 
-    //Esta es la clase para abstraer las películas que presentará el cine.
-    //La mayoría de atributos se explican solo con su nombre, a excepción
-    //de id, que corresponde al índice que ocupa la película dentro el que será
+    //Esta es la clase para modelar las películas que presentará el cine.
+    //La mayoría de atributos se explican sólo con su nombre, a excepción
+    //de id, que corresponde al índice que ocupa la película dentro del que será
     //el vector que almacenará la oferta de películas, Shows; seats[][]
     //que será una matriz que almacenará los asientos de cada show,
     //y clasi que almacenará la clasificación de la película +14, +16, etc.
@@ -117,7 +117,7 @@ void display_labels(const short int &max_size_name, const short int &max_size_ge
 template <typename T>
 int ceiling(T num) {
 
-    //Como su nombre se indica, es la función techo, que devuelve el mínimo
+    //Como su nombre lo indica, es la función techo, que devuelve el mínimo
     //de los números enteros mayores o iguales que el ingresado.
 
     int int_part = int(num);
