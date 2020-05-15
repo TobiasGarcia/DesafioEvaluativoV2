@@ -570,7 +570,7 @@ bool is_room_available(const vector<Show> &shows, const short int &room, const s
     return true;
 }
 
-void Show::modify_offers(short int shows_num) {
+void Show::modify_offers(short int shows_num, bool &offer) {
 
     //Esta método administra el resto del proceso para que el admin pueda modificar
     //la forma en que se ofrencen las sillas dentro de las salas, luego de que ya
@@ -618,6 +618,7 @@ void Show::modify_offers(short int shows_num) {
             cout << endl;
 
             msg_and_cls("The offer has been successfully placed!");
+            offer = true;
 
             //Le preguntamos al admin si desea modificar la forma en que se oferta otro asiento.
 
@@ -628,7 +629,7 @@ void Show::modify_offers(short int shows_num) {
     save_show(shows_num);
 }
 
-void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned long long int &total, const unsigned long long int &user_id, const unsigned int &seed) {
+void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned long long int &total, const unsigned long long int &user_id, bool &reserve, const unsigned int &seed) {
 
     //Esta método administra el resto del proceso para que el usuario del cine pueda
     //reservar un asiento luego de que ya haya escogido la función de su interés.
@@ -697,7 +698,7 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
                     //Agregamos el precio de la compra al total de ventas diarias, y registramos
                     //en que modalidad se reservó el asiento para poder discriminar las ventas
                     //por estos tipos, dentro del registro de ventas. Actualizamos el archivo
-                    //de texto del registro ventas.
+                    //de texto del registro ventas, sales_record.txt.
 
                     total += price;
                     if (is_3D) sales.at(seats[row][column].sale_type)++;
@@ -727,12 +728,13 @@ void Show::reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned
 
                     cout << endl << "  Thank you for choosing us, we hope you enjoy your movie! :D" << endl << endl << "  ";
                     system("pause");
+                    reserve = true;
                 }
                 else {
 
                     cout << endl << "  You canceled the reservation" << endl << endl << "  ";
                     system("pause");
-                    return;
+                    ask = false;
                 }
             }
             else system("cls");

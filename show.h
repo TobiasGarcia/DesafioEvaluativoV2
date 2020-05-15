@@ -96,9 +96,9 @@ public:
 
     bool get_index(short &index, bool is_row, const bool &is_admin, short int row = 0);
 
-    void modify_offers(short int shows_num);
+    void modify_offers(short int shows_num, bool &offer);
 
-    void reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned long long int &total, const unsigned long long int &user_id, const unsigned int &seed);
+    void reserve_seat(short shows_num, array<unsigned int, 6> &sales, unsigned long long int &total, const unsigned long long int &user_id, bool &reserve, const unsigned int &seed);
 };
 
 bool get_shows(vector<Show> &shows);

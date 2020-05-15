@@ -4,7 +4,7 @@
 
 using namespace std;
 
-//Estas son todas las implementaciones de las funciones para codificar y decodificar texto.
+//Esta libreria contiene todas las implementaciones de las funciones para codificar y decodificar texto.
 
 //El método de códificación utilizado es el método 1 expuesto en la práctica 3 del laboratorio;
 //como sabemos en este tipo de codificación hay que pasar el texto a binario, éste binario

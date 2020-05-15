@@ -1,21 +1,34 @@
 #include <iostream>
+#include <vector>
+#include <array>
+#include "session.h"
 #include "dialog.h"
 #include "login.h"
-#include "show.h"
-#include "session.h"
-#include <array>
-#include "code_decode.h"
 
 using namespace std;
 
-//ONLY FOR WINDOWS
+//NOTA IMPORTANTE SOBRE COMPATIBILIDAD:
 
-//La semilla de codificación por defecto es 12,
-//pero puede ser cualquier otro entero positivo.
+//Este programa fue desarrollado y testeado utilziando el sistema operativo Windows 10,
+//por lo cual se da garantía de su correcto funcionamiento bajo este mismo sistema operativo,
+//pues se utilizó una libreria en particular para agregar colores a la consola de Windows,
+//la libreria windows.h, y dos instrucciones del propio sistema, 'cls' y 'pause'.
+
+//NOTA SOBRE EL MANEJO DE ARCHIVOS:
+
+//El método de codificación utilizado sobre los archivos fue el método 1 expuesto en la
+//práctica 3 del laboratorio, con n = 3 (semilla igual a 3). Es importante no cambiar
+//esta semilla pues los archivos con los que viene por defecto el programa fueron
+//codificados con ella.
+
+//Es importante que la carpeta del proyecto se llame 'DesafioEvaluativoV2', pues ese nombre
+//es el que se usa para llegar a la ubicación de las bases de datos dentro de la carpeta
+//data que se encuentra dentro de la carpeta de éste proyecto.
 
 int main() {
 
-    //Inicializamos las variables.
+    //Inicializamos algunas variables que requiere el programa, para más información
+    //ver el vídeo de Youtube o leer la documentación de las funciones y métodos.
 
     unsigned int code_seed = 12;
     bool is_admin, logged, on = true;

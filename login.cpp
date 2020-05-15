@@ -3,8 +3,8 @@
 #include "code_decode.h"
 #include <iostream>
 
-//Estas son todas las implementaciones de las funciones que administrarán el inicio de sesión
-//tanto de los usuarios como del admin.
+//Esta libreria contiene todas las implementaciones de las funciones que administrarán
+//el inicio de sesión tanto de los usuarios como del admin.
 
 bool login_admin(unsigned int seed) {
 
@@ -182,6 +182,12 @@ bool register_user(unsigned long long int id, unsigned seed) {
 
     //Llamamos a la función add_user() para agregar al usuario
     //al archivo users.txt.
+
+    //Nota: En esta parte me hubiera gusta hacer algo como enviarle un correo electrónico
+    //al usuario o algo por el estilo, para confiamar la cuenta creada, pues así podriamos
+    //evitar que cualquier persona puediera reservar a nombre de otra con solo conocer su
+    //cédula, aunque como el pago se cobra a la persona que está utilizando la aplicación,
+    //no habría problema con el dinero, pero sí con la identidad.
 
     return add_user(id, password, seed);
 }

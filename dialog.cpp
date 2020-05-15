@@ -1,4 +1,5 @@
 #include "dialog.h"
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <windows.h>
@@ -371,7 +372,44 @@ void display_title(bool is_admin) {
         cout << endl << "      .: ADMINISTRATION MENU :.";
         SetConsoleTextAttribute(hConsole, 7);
     }
-    else cout << endl << " WELCOME TO THE CINEMA!";
+    else {
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+        SetConsoleTextAttribute(hConsole, 3);
+        cout << endl << "         .: WELCOME TO THE CINEMA :." << endl;
+        SetConsoleTextAttribute(hConsole, 7);
+    }
+}
+
+void display_sales(const array<unsigned int, 6> &sales, const unsigned long long int &total) {
+
+    //Imprimimos en pantalla el registro ventas almacenado en el array sales.
+
+    system("cls");
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    SetConsoleTextAttribute(hConsole, 2);
+    cout << endl << "           TODAY'S SALES" << endl << endl;
+    SetConsoleTextAttribute(hConsole, 7);
+
+    cout << "  -----------------------------3D" << endl << endl;
+
+    cout << "  General: " << sales.at(0) << "  ---  $" << sales.at(0)*11700 << endl << endl;
+    cout << "  VibroSound: " << sales.at(1) << "  ---  $" << sales.at(1)*13900 << endl << endl;
+    cout << "  Gold: " << sales.at(2) << "  ---  $" << sales.at(2)*22900 << endl << endl;
+
+    cout << "  -----------------------------2D" << endl << endl;
+
+    cout << "  General: " << sales.at(3) << "  ---  $" << sales.at(3)*8700 << endl << endl;
+    cout << "  VibroSound: " << sales.at(4) << "  ---  $" << sales.at(4)*10900 << endl << endl;
+    cout << "  Gold: " << sales.at(5) << "  ---  $" << sales.at(5)*19900 << endl << endl;
+
+    cout << "  --------------------Total: $" << total << endl << endl;
+
+    cout << "  There is also a more compact version of the sale" << endl;
+    cout << "  record in sales_record.txt, but it is encoded" << endl << endl << "  ";
+
+    system("pause");
 }
 
 void display_edge(short int size, short int chr) {
